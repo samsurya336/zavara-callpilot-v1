@@ -222,6 +222,11 @@
   .challenge-mode:hover .challenge-mode-body {
     border-color: var(--ring);
   }
+  /* A generating or failed card is not clickable, so it does not lift on hover. */
+  .destination.challenge-card-pending:hover {
+    transform: none;
+    border-color: var(--glass-border);
+  }
 }
 @media (max-width: 1199px) {
   .challenge-grid {

@@ -80,3 +80,8 @@ import_map = "./functions/deno.json"
 [functions.extract-knowledge]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+# Auth is verified inside the function; generation runs in the background after a 202 response.
+[functions.generate-challenges]
+verify_jwt = false
+import_map = "./functions/deno.json"

@@ -11,7 +11,12 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useUIStore } from '@/stores/ui-store'
-import { ChallengeCard, ChallengeDetailsSheet, GenerateChallengeDialog } from '../components'
+import {
+  ChallengeCard,
+  ChallengeDetailsSheet,
+  GenerateChallengeDialog,
+  GeneratingChallengeCard,
+} from '../components'
 import { useChallenges } from '../hooks'
 import type { Challenge, ChallengeCallType } from '../repositories'
 import { callTypeLabels } from '../services'
@@ -50,9 +55,13 @@ function ChallengeSection({
       </div>
       {challenges.length > 0 ? (
         <ul className="challenge-grid">
-          {challenges.map((challenge) => (
-            <ChallengeCard key={challenge.id} challenge={challenge} onSelect={onSelect} />
-          ))}
+          {challenges.map((challenge) =>
+            challenge.generationStatus === 'READY' ? (
+              <ChallengeCard key={challenge.id} challenge={challenge} onSelect={onSelect} />
+            ) : (
+              <GeneratingChallengeCard key={challenge.id} challenge={challenge} />
+            ),
+          )}
         </ul>
       ) : (
         empty

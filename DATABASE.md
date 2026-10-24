@@ -130,6 +130,8 @@ Stores both seeded Open Challenges and user-specific Knowledge-based Challenges.
 | `source`           | `challenge_source` |   No | `INTERNAL`          | `INTERNAL` for Open Challenges; `KNOWLEDGE_BASE` for generated challenges.                            |
 | `knowledge_id`     | `uuid`             |  Yes | —                   | Required for `KNOWLEDGE_BASE`; references the owner's `knowledge` entry.                              |
 | `configs`          | `jsonb`            |   No | `{}`                | Starter prompt, scenario configuration, scoring settings, or other app config. Must be a JSON object. |
+| `generation_status` | `challenge_generation_status` | No | `READY`          | `PROCESSING`, `READY`, or `FAILED`. Only generated challenges are ever not `READY`.                    |
+| `generation_error` | `text`             |  Yes | —                   | Safe message shown when generation fails.                                                             |
 | `created_at`       | `timestamptz`      |   No | `now()`             | Creation time.                                                                                        |
 | `updated_at`       | `timestamptz`      |   No | `now()`             | Automatically updated by trigger.                                                                     |
 
@@ -139,6 +141,10 @@ Constraints:
 - `KNOWLEDGE_BASE` challenges must have both `created_by` and `knowledge_id`.
 - Generated challenges must reference a `READY` knowledge entry owned by the same user.
 - A challenge does not store `mode`; the same challenge supports both `ASSIST` and `BATTLE`. Mode belongs to the call session.
+- A challenge that is not `READY` must be inactive, so no call can start on a half-made challenge.
+- Only one `PROCESSING` row may exist per knowledge entry and generation slot (`configs.generation.slot`).
+
+Knowledge-based Challenges are written only by the `generate-challenges` Edge Function with the service role. The browser can read and delete its own generated challenges but cannot insert or update them. Each run creates three rows (slots 1 and 2 One-on-One, slot 3 Boardroom) as inactive `PROCESSING` placeholders, then fills them in the background. For generated challenges, `configs` holds `starter_prompt` and `generation` (`slot`, `angle`, `difficulty`, `goal`, `attempts`, `knowledgeUpdatedAt`, `runId`, and `grounding` excerpts copied from the knowledge).
 
 ### `public.participant`
 
@@ -167,7 +173,7 @@ Browser-safe view of participant data. It exposes only:
 
 `id`, `challenge_id`, `name`, `designation`, `company`, `personality`, `communication_style`, `decision_authority`, and `sort_order`.
 
-It does not expose `hidden_motivation`, `objections`, or `voice_configs`.
+It does not expose `hidden_motivation`, `objections`, or `voice_configs`. The browser has no direct `select` on `public.participant`; it reads participants only through this view.
 
 ## Calls Module
 

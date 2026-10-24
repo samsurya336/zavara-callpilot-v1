@@ -1,6 +1,14 @@
-import { ArrowUpRight, Clock, User, Users } from 'lucide-react'
+import { ArrowUpRight, CircleAlert, Clock, Loader2, RotateCcw, User, Users } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useRetryChallengeGeneration } from '../hooks'
 import type { Challenge, ChallengeDifficulty } from '../repositories'
-import { callTypeLabels, difficultyLabels, formatMinutes, initials } from '../services'
+import {
+  callTypeLabels,
+  difficultyLabels,
+  formatMinutes,
+  generationState,
+  initials,
+} from '../services'
 
 export function DifficultyLabel({ difficulty }: { difficulty: ChallengeDifficulty }) {
   return (
@@ -71,6 +79,60 @@ export function ChallengeCard({
           <ParticipantStack challenge={challenge} />
         </span>
       </button>
+    </li>
+  )
+}
+
+// Placeholder for a Knowledge-based Challenge that is still generating or failed to generate.
+export function GeneratingChallengeCard({ challenge }: { challenge: Challenge }) {
+  const retry = useRetryChallengeGeneration()
+  const failed = generationState(challenge) === 'failed'
+  const format = callTypeLabels[challenge.callType]
+  return (
+    <li className="min-w-0">
+      <div className="challenge-card challenge-card-pending destination glass">
+        <span className="icon-tile">
+          {failed ? (
+            <CircleAlert size={22} aria-hidden="true" />
+          ) : (
+            <Loader2 size={22} className="animate-spin" aria-hidden="true" />
+          )}
+        </span>
+        <span role="status" className="mt-6 block text-xs text-muted-foreground">
+          {failed ? 'Generation failed' : 'Generating...'}
+        </span>
+        <span className="mt-2 block font-display text-base font-semibold">{format} challenge</span>
+        <span className="challenge-card-description mt-2 text-sm text-muted-foreground">
+          {failed
+            ? `${challenge.generationError ?? 'Something went wrong.'} Try again.`
+            : 'Designing buyers from your knowledge. This takes about a minute.'}
+        </span>
+        <span className="challenge-card-meta">
+          <span className="challenge-chip">{format}</span>
+        </span>
+        {failed && (
+          <span className="challenge-card-footer">
+            {retry.error && (
+              <span role="alert" className="mb-3 block text-xs text-destructive">
+                {retry.error.message}
+              </span>
+            )}
+            <Button
+              variant="secondary"
+              className="h-11 rounded-full px-5"
+              disabled={retry.isPending}
+              onClick={() => retry.mutate(challenge.id)}
+            >
+              {retry.isPending ? (
+                <Loader2 className="animate-spin" aria-hidden="true" />
+              ) : (
+                <RotateCcw aria-hidden="true" />
+              )}
+              Retry
+            </Button>
+          </span>
+        )}
+      </div>
     </li>
   )
 }
