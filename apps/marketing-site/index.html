@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0c0f" media="(prefers-color-scheme: dark)">
+  <title>CallPilot AI by Zavara | Practise Every Sales Conversation Before It Really Counts</title>
+  <meta name="description" content="CallPilot AI helps Indian B2B sales teams practise customer conversations with AI buyers, handle realistic objections, and improve through transcript-based coaching and Time Machine retries.">
+  <meta name="keywords" content="AI sales practice, sales roleplay, objection handling, sales coaching India, B2B sales training, Zavara CallPilot">
+  <meta name="author" content="Zavara">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Zavara CallPilot">
+  <meta property="og:title" content="CallPilot AI by Zavara | Practise Every Sales Conversation Before It Really Counts">
+  <meta property="og:description" content="CallPilot AI helps Indian B2B sales teams practise customer conversations with AI buyers, handle realistic objections, and improve through transcript-based coaching and Time Machine retries.">
+  <meta property="og:image" content="assets/logo-mark.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    (function () {
+      document.documentElement.classList.add('js');
+      try { var t = localStorage.getItem('cp-theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-branch" viewBox="0 0 24 24"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+    <symbol id="i-swords" viewBox="0 0 24 24"><path d="m14.5 17.5-11.5-11.5V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/><path d="m14.5 6.5 3.5-3.5h3v3l-3.5 3.5"/><path d="m5 14 4 4"/><path d="m7 17-3 3"/><path d="m3 19 2 2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+    <symbol id="i-rupee" viewBox="0 0 24 24"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a6 6 0 0 1-12 0V8Z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></symbol>
+  </svg>
+
+  <header class="site-header glass-strong">
+    <div class="container header-inner">
+      <a href="index.html" class="brand" aria-label="CallPilot AI home">
+        <span class="logo-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><span class="brand-name">CallPilot AI</span><span class="brand-by">by Zavara</span></span>
+      </a>
+      <nav class="nav-desktop" aria-label="Primary">
+        <ul class="nav-list">
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#learn">What you learn</a></li>
+          <li><a href="#ai-buyers">AI buyers</a></li>
+          <li><a href="#modes">Assist vs Battle</a></li>
+          <li><a href="#time-machine">Time Machine</a></li>
+          <li><a href="roadmap.html">Roadmap</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button type="button" class="icon-btn theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">
+          <svg class="icon i-moon"><use href="#i-moon"/></svg>
+          <svg class="icon i-sun"><use href="#i-sun"/></svg>
+        </button>
+        <a href="#get-started" class="btn btn-primary header-cta">Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
+        <button type="button" class="icon-btn menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+          <svg class="icon"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="scroll-progress" aria-hidden="true"></div>
+  </header>
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Primary mobile">
+    <ul class="nav-list">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#learn">What you learn</a></li>
+      <li><a href="#ai-buyers">AI buyers</a></li>
+      <li><a href="#modes">Assist vs Battle</a></li>
+      <li><a href="#time-machine">Time Machine</a></li>
+      <li><a href="roadmap.html">Roadmap</a></li>
+    </ul>
+    <a href="#get-started" class="btn btn-primary">Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
+  </nav>
+
+  <main id="main-content" tabindex="-1">
+
+    <div class="hero-wrap">
+    <svg class="hero-bg" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="hb-fade" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.12" stop-color="#fff"/><stop offset="0.88" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="hb-mask"><rect width="1440" height="700" fill="url(#hb-fade)"/></mask><linearGradient id="hb-wave" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="720" y2="0" spreadMethod="reflect"><stop offset="0" class="stop-blue"/><stop offset="1" class="stop-green"/></linearGradient><filter id="hb-blur" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="10"/></filter></defs><g class="wave-lines" mask="url(#hb-mask)"><path class="wave-glow" d="M0 598.0L8 601.1L16 604.2L24 607.3L32 610.2L40 613.0L48 615.6L56 618.1L64 620.3L72 622.3L80 624.0L88 625.4L96 626.5L104 627.3L112 627.8L120 628.0L128 627.8L136 627.3L144 626.5L152 625.4L160 624.0L168 622.3L176 620.3L184 618.1L192 615.6L200 613.0L208 610.2L216 607.3L224 604.2L232 601.1L240 598.0L248 594.9L256 591.8L264 588.7L272 585.8L280 583.0L288 580.4L296 577.9L304 575.7L312 573.7L320 572.0L328 570.6L336 569.5L344 568.7L352 568.2L360 568.0L368 568.2L376 568.7L384 569.5L392 570.6L400 572.0L408 573.7L416 575.7L424 577.9L432 580.4L440 583.0L448 585.8L456 588.7L464 591.8L472 594.9L480 598.0L488 601.1L496 604.2L504 607.3L512 610.2L520 613.0L528 615.6L536 618.1L544 620.3L552 622.3L560 624.0L568 625.4L576 626.5L584 627.3L592 627.8L600 628.0L608 627.8L616 627.3L624 626.5L632 625.4L640 624.0L648 622.3L656 620.3L664 618.1L672 615.6L680 613.0L688 610.2L696 607.3L704 604.2L712 601.1L720 598.0L728 594.9L736 591.8L744 588.7L752 585.8L760 583.0L768 580.4L776 577.9L784 575.7L792 573.7L800 572.0L808 570.6L816 569.5L824 568.7L832 568.2L840 568.0L848 568.2L856 568.7L864 569.5L872 570.6L880 572.0L888 573.7L896 575.7L904 577.9L912 580.4L920 583.0L928 585.8L936 588.7L944 591.8L952 594.9L960 598.0L968 601.1L976 604.2L984 607.3L992 610.2L1000 613.0L1008 615.6L1016 618.1L1024 620.3L1032 622.3L1040 624.0L1048 625.4L1056 626.5L1064 627.3L1072 627.8L1080 628.0L1088 627.8L1096 627.3L1104 626.5L1112 625.4L1120 624.0L1128 622.3L1136 620.3L1144 618.1L1152 615.6L1160 613.0L1168 610.2L1176 607.3L1184 604.2L1192 601.1L1200 598.0L1208 594.9L1216 591.8L1224 588.7L1232 585.8L1240 583.0L1248 580.4L1256 577.9L1264 575.7L1272 573.7L1280 572.0L1288 570.6L1296 569.5L1304 568.7L1312 568.2L1320 568.0L1328 568.2L1336 568.7L1344 569.5L1352 570.6L1360 572.0L1368 573.7L1376 575.7L1384 577.9L1392 580.4L1400 583.0L1408 585.8L1416 588.7L1424 591.8L1432 594.9L1440 598.0L1448 601.1L1456 604.2L1464 607.3L1472 610.2L1480 613.0L1488 615.6L1496 618.1L1504 620.3L1512 622.3L1520 624.0L1528 625.4L1536 626.5L1544 627.3L1552 627.8L1560 628.0L1568 627.8L1576 627.3L1584 626.5L1592 625.4L1600 624.0L1608 622.3L1616 620.3L1624 618.1L1632 615.6L1640 613.0L1648 610.2L1656 607.3L1664 604.2L1672 601.1L1680 598.0L1688 594.9L1696 591.8L1704 588.7L1712 585.8L1720 583.0L1728 580.4L1736 577.9L1744 575.7L1752 573.7L1760 572.0L1768 570.6L1776 569.5L1784 568.7L1792 568.2L1800 568.0L1808 568.2L1816 568.7L1824 569.5L1832 570.6L1840 572.0L1848 573.7L1856 575.7L1864 577.9L1872 580.4L1880 583.0L1888 585.8L1896 588.7L1904 591.8L1912 594.9L1920 598.0L1928 601.1L1936 604.2L1944 607.3L1952 610.2L1960 613.0L1968 615.6L1976 618.1L1984 620.3L1992 622.3L2000 624.0L2008 625.4L2016 626.5L2024 627.3L2032 627.8L2040 628.0L2048 627.8L2056 627.3L2064 626.5L2072 625.4L2080 624.0L2088 622.3L2096 620.3L2104 618.1L2112 615.6L2120 613.0L2128 610.2L2136 607.3L2144 604.2L2152 601.1L2160 598.0L2168 594.9L2176 591.8L2184 588.7L2192 585.8L2200 583.0L2208 580.4L2216 577.9L2224 575.7L2232 573.7L2240 572.0L2248 570.6L2256 569.5L2264 568.7L2272 568.2L2280 568.0L2288 568.2L2296 568.7L2304 569.5L2312 570.6L2320 572.0L2328 573.7L2336 575.7L2344 577.9L2352 580.4L2360 583.0L2368 585.8L2376 588.7L2384 591.8L2392 594.9L2400 598.0L2408 601.1L2416 604.2L2424 607.3L2432 610.2L2440 613.0L2448 615.6L2456 618.1L2464 620.3L2472 622.3L2480 624.0L2488 625.4L2496 626.5L2504 627.3L2512 627.8L2520 628.0L2528 627.8L2536 627.3L2544 626.5L2552 625.4L2560 624.0L2568 622.3L2576 620.3L2584 618.1L2592 615.6L2600 613.0L2608 610.2L2616 607.3L2624 604.2L2632 601.1L2640 598.0L2648 594.9L2656 591.8L2664 588.7L2672 585.8L2680 583.0L2688 580.4L2696 577.9L2704 575.7L2712 573.7L2720 572.0L2728 570.6L2736 569.5L2744 568.7L2752 568.2L2760 568.0L2768 568.2L2776 568.7L2784 569.5L2792 570.6L2800 572.0L2808 573.7L2816 575.7L2824 577.9L2832 580.4L2840 583.0L2848 585.8L2856 588.7L2864 591.8L2872 594.9L2880 598.0"/><path class="wave-echo" d="M0 628.5L8 627.6L16 626.5L24 625.2L32 623.8L40 622.2L48 620.4L56 618.6L64 616.7L72 614.7L80 612.6L88 610.5L96 608.4L104 606.4L112 604.3L120 602.3L128 600.5L136 598.7L144 597.0L152 595.5L160 594.1L168 592.9L176 591.9L184 591.1L192 590.6L200 590.2L208 590.0L216 590.1L224 590.3L232 590.8L240 591.5L248 592.4L256 593.5L264 594.8L272 596.2L280 597.8L288 599.6L296 601.4L304 603.3L312 605.3L320 607.4L328 609.5L336 611.6L344 613.6L352 615.7L360 617.7L368 619.5L376 621.3L384 623.0L392 624.5L400 625.9L408 627.1L416 628.1L424 628.9L432 629.4L440 629.8L448 630.0L456 629.9L464 629.7L472 629.2L480 628.5L488 627.6L496 626.5L504 625.2L512 623.8L520 622.2L528 620.4L536 618.6L544 616.7L552 614.7L560 612.6L568 610.5L576 608.4L584 606.4L592 604.3L600 602.3L608 600.5L616 598.7L624 597.0L632 595.5L640 594.1L648 592.9L656 591.9L664 591.1L672 590.6L680 590.2L688 590.0L696 590.1L704 590.3L712 590.8L720 591.5L728 592.4L736 593.5L744 594.8L752 596.2L760 597.8L768 599.6L776 601.4L784 603.3L792 605.3L800 607.4L808 609.5L816 611.6L824 613.6L832 615.7L840 617.7L848 619.5L856 621.3L864 623.0L872 624.5L880 625.9L888 627.1L896 628.1L904 628.9L912 629.4L920 629.8L928 630.0L936 629.9L944 629.7L952 629.2L960 628.5L968 627.6L976 626.5L984 625.2L992 623.8L1000 622.2L1008 620.4L1016 618.6L1024 616.7L1032 614.7L1040 612.6L1048 610.5L1056 608.4L1064 606.4L1072 604.3L1080 602.3L1088 600.5L1096 598.7L1104 597.0L1112 595.5L1120 594.1L1128 592.9L1136 591.9L1144 591.1L1152 590.6L1160 590.2L1168 590.0L1176 590.1L1184 590.3L1192 590.8L1200 591.5L1208 592.4L1216 593.5L1224 594.8L1232 596.2L1240 597.8L1248 599.6L1256 601.4L1264 603.3L1272 605.3L1280 607.4L1288 609.5L1296 611.6L1304 613.6L1312 615.7L1320 617.7L1328 619.5L1336 621.3L1344 623.0L1352 624.5L1360 625.9L1368 627.1L1376 628.1L1384 628.9L1392 629.4L1400 629.8L1408 630.0L1416 629.9L1424 629.7L1432 629.2L1440 628.5L1448 627.6L1456 626.5L1464 625.2L1472 623.8L1480 622.2L1488 620.4L1496 618.6L1504 616.7L1512 614.7L1520 612.6L1528 610.5L1536 608.4L1544 606.4L1552 604.3L1560 602.3L1568 600.5L1576 598.7L1584 597.0L1592 595.5L1600 594.1L1608 592.9L1616 591.9L1624 591.1L1632 590.6L1640 590.2L1648 590.0L1656 590.1L1664 590.3L1672 590.8L1680 591.5L1688 592.4L1696 593.5L1704 594.8L1712 596.2L1720 597.8L1728 599.6L1736 601.4L1744 603.3L1752 605.3L1760 607.4L1768 609.5L1776 611.6L1784 613.6L1792 615.7L1800 617.7L1808 619.5L1816 621.3L1824 623.0L1832 624.5L1840 625.9L1848 627.1L1856 628.1L1864 628.9L1872 629.4L1880 629.8L1888 630.0L1896 629.9L1904 629.7L1912 629.2L1920 628.5L1928 627.6L1936 626.5L1944 625.2L1952 623.8L1960 622.2L1968 620.4L1976 618.6L1984 616.7L1992 614.7L2000 612.6L2008 610.5L2016 608.4L2024 606.4L2032 604.3L2040 602.3L2048 600.5L2056 598.7L2064 597.0L2072 595.5L2080 594.1L2088 592.9L2096 591.9L2104 591.1L2112 590.6L2120 590.2L2128 590.0L2136 590.1L2144 590.3L2152 590.8L2160 591.5L2168 592.4L2176 593.5L2184 594.8L2192 596.2L2200 597.8L2208 599.6L2216 601.4L2224 603.3L2232 605.3L2240 607.4L2248 609.5L2256 611.6L2264 613.6L2272 615.7L2280 617.7L2288 619.5L2296 621.3L2304 623.0L2312 624.5L2320 625.9L2328 627.1L2336 628.1L2344 628.9L2352 629.4L2360 629.8L2368 630.0L2376 629.9L2384 629.7L2392 629.2L2400 628.5L2408 627.6L2416 626.5L2424 625.2L2432 623.8L2440 622.2L2448 620.4L2456 618.6L2464 616.7L2472 614.7L2480 612.6L2488 610.5L2496 608.4L2504 606.4L2512 604.3L2520 602.3L2528 600.5L2536 598.7L2544 597.0L2552 595.5L2560 594.1L2568 592.9L2576 591.9L2584 591.1L2592 590.6L2600 590.2L2608 590.0L2616 590.1L2624 590.3L2632 590.8L2640 591.5L2648 592.4L2656 593.5L2664 594.8L2672 596.2L2680 597.8L2688 599.6L2696 601.4L2704 603.3L2712 605.3L2720 607.4L2728 609.5L2736 611.6L2744 613.6L2752 615.7L2760 617.7L2768 619.5L2776 621.3L2784 623.0L2792 624.5L2800 625.9L2808 627.1L2816 628.1L2824 628.9L2832 629.4L2840 629.8L2848 630.0L2856 629.9L2864 629.7L2872 629.2L2880 628.5"/><path class="wave-main" d="M0 598.0L8 601.1L16 604.2L24 607.3L32 610.2L40 613.0L48 615.6L56 618.1L64 620.3L72 622.3L80 624.0L88 625.4L96 626.5L104 627.3L112 627.8L120 628.0L128 627.8L136 627.3L144 626.5L152 625.4L160 624.0L168 622.3L176 620.3L184 618.1L192 615.6L200 613.0L208 610.2L216 607.3L224 604.2L232 601.1L240 598.0L248 594.9L256 591.8L264 588.7L272 585.8L280 583.0L288 580.4L296 577.9L304 575.7L312 573.7L320 572.0L328 570.6L336 569.5L344 568.7L352 568.2L360 568.0L368 568.2L376 568.7L384 569.5L392 570.6L400 572.0L408 573.7L416 575.7L424 577.9L432 580.4L440 583.0L448 585.8L456 588.7L464 591.8L472 594.9L480 598.0L488 601.1L496 604.2L504 607.3L512 610.2L520 613.0L528 615.6L536 618.1L544 620.3L552 622.3L560 624.0L568 625.4L576 626.5L584 627.3L592 627.8L600 628.0L608 627.8L616 627.3L624 626.5L632 625.4L640 624.0L648 622.3L656 620.3L664 618.1L672 615.6L680 613.0L688 610.2L696 607.3L704 604.2L712 601.1L720 598.0L728 594.9L736 591.8L744 588.7L752 585.8L760 583.0L768 580.4L776 577.9L784 575.7L792 573.7L800 572.0L808 570.6L816 569.5L824 568.7L832 568.2L840 568.0L848 568.2L856 568.7L864 569.5L872 570.6L880 572.0L888 573.7L896 575.7L904 577.9L912 580.4L920 583.0L928 585.8L936 588.7L944 591.8L952 594.9L960 598.0L968 601.1L976 604.2L984 607.3L992 610.2L1000 613.0L1008 615.6L1016 618.1L1024 620.3L1032 622.3L1040 624.0L1048 625.4L1056 626.5L1064 627.3L1072 627.8L1080 628.0L1088 627.8L1096 627.3L1104 626.5L1112 625.4L1120 624.0L1128 622.3L1136 620.3L1144 618.1L1152 615.6L1160 613.0L1168 610.2L1176 607.3L1184 604.2L1192 601.1L1200 598.0L1208 594.9L1216 591.8L1224 588.7L1232 585.8L1240 583.0L1248 580.4L1256 577.9L1264 575.7L1272 573.7L1280 572.0L1288 570.6L1296 569.5L1304 568.7L1312 568.2L1320 568.0L1328 568.2L1336 568.7L1344 569.5L1352 570.6L1360 572.0L1368 573.7L1376 575.7L1384 577.9L1392 580.4L1400 583.0L1408 585.8L1416 588.7L1424 591.8L1432 594.9L1440 598.0L1448 601.1L1456 604.2L1464 607.3L1472 610.2L1480 613.0L1488 615.6L1496 618.1L1504 620.3L1512 622.3L1520 624.0L1528 625.4L1536 626.5L1544 627.3L1552 627.8L1560 628.0L1568 627.8L1576 627.3L1584 626.5L1592 625.4L1600 624.0L1608 622.3L1616 620.3L1624 618.1L1632 615.6L1640 613.0L1648 610.2L1656 607.3L1664 604.2L1672 601.1L1680 598.0L1688 594.9L1696 591.8L1704 588.7L1712 585.8L1720 583.0L1728 580.4L1736 577.9L1744 575.7L1752 573.7L1760 572.0L1768 570.6L1776 569.5L1784 568.7L1792 568.2L1800 568.0L1808 568.2L1816 568.7L1824 569.5L1832 570.6L1840 572.0L1848 573.7L1856 575.7L1864 577.9L1872 580.4L1880 583.0L1888 585.8L1896 588.7L1904 591.8L1912 594.9L1920 598.0L1928 601.1L1936 604.2L1944 607.3L1952 610.2L1960 613.0L1968 615.6L1976 618.1L1984 620.3L1992 622.3L2000 624.0L2008 625.4L2016 626.5L2024 627.3L2032 627.8L2040 628.0L2048 627.8L2056 627.3L2064 626.5L2072 625.4L2080 624.0L2088 622.3L2096 620.3L2104 618.1L2112 615.6L2120 613.0L2128 610.2L2136 607.3L2144 604.2L2152 601.1L2160 598.0L2168 594.9L2176 591.8L2184 588.7L2192 585.8L2200 583.0L2208 580.4L2216 577.9L2224 575.7L2232 573.7L2240 572.0L2248 570.6L2256 569.5L2264 568.7L2272 568.2L2280 568.0L2288 568.2L2296 568.7L2304 569.5L2312 570.6L2320 572.0L2328 573.7L2336 575.7L2344 577.9L2352 580.4L2360 583.0L2368 585.8L2376 588.7L2384 591.8L2392 594.9L2400 598.0L2408 601.1L2416 604.2L2424 607.3L2432 610.2L2440 613.0L2448 615.6L2456 618.1L2464 620.3L2472 622.3L2480 624.0L2488 625.4L2496 626.5L2504 627.3L2512 627.8L2520 628.0L2528 627.8L2536 627.3L2544 626.5L2552 625.4L2560 624.0L2568 622.3L2576 620.3L2584 618.1L2592 615.6L2600 613.0L2608 610.2L2616 607.3L2624 604.2L2632 601.1L2640 598.0L2648 594.9L2656 591.8L2664 588.7L2672 585.8L2680 583.0L2688 580.4L2696 577.9L2704 575.7L2712 573.7L2720 572.0L2728 570.6L2736 569.5L2744 568.7L2752 568.2L2760 568.0L2768 568.2L2776 568.7L2784 569.5L2792 570.6L2800 572.0L2808 573.7L2816 575.7L2824 577.9L2832 580.4L2840 583.0L2848 585.8L2856 588.7L2864 591.8L2872 594.9L2880 598.0"/></g></svg>
+    <section class="container hero" aria-labelledby="hero-heading">
+      <div>
+        <p class="eyebrow fade-in"><span class="dot dot-normal dot-live"></span> AI sales practice for Indian B2B teams</p>
+        <h1 id="hero-heading" class="fade-in delay-1">Practise every sales conversation <em>before it really counts.</em></h1>
+        <p class="lead fade-in delay-2">Talk to AI buyers who push back like real CFOs and CTOs. Get coaching from your own transcript. Go back and fix the moment you lost the deal.</p>
+        <div class="btn-row fade-in delay-3">
+          <a href="#how-it-works" class="btn btn-primary btn-lg">See how it works <svg class="icon icon-sm icon-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a href="#time-machine" class="btn btn-secondary btn-lg"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-history"/></svg> Try Time Machine</a>
+        </div>
+        <div class="hero-proof fade-in delay-4">
+          <span><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg> Voice calls</span>
+          <span><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg> Boardroom of CEO, CTO, CFO</span>
+          <span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg> Transcript-based coaching</span>
+        </div>
+        <p class="hero-note fade-in delay-4"><span class="dot dot-borderline"></span><span>Today CallPilot AI is a <strong>simulated</strong> practice environment. Live-call assistance and CRM integrations are <strong>Coming Soon</strong>.</span></p>
+        <a href="#orbit" class="scroll-cue fade-in delay-4"><span>Scroll to explore</span><svg class="cue" viewBox="0 0 24 24" aria-hidden="true"><path class="arc" d="M3 6c5 4.6 13 4.6 18 0"/><path class="arc" d="M6 11c3.4 3.2 8.6 3.2 12 0"/><path class="arc" d="M9 16c1.8 1.8 4.2 1.8 6 0"/><circle class="cue-dot" cx="12" cy="21" r="1.6"/></svg></a>
+      </div>
+
+      <figure class="demo glass-strong fade-in delay-2" data-demo aria-label="Illustrative live practice session">
+        <div class="demo-top">
+          <span class="tag"><svg class="wave" viewBox="0 0 24 16" aria-hidden="true"><rect x="1" y="5" width="3" height="6" rx="1.5"/><rect x="6" y="2" width="3" height="12" rx="1.5"/><rect x="11" y="4" width="3" height="8" rx="1.5"/><rect x="16" y="1" width="3" height="14" rx="1.5"/><rect x="21" y="6" width="3" height="4" rx="1.5"/></svg> Boardroom &middot; Assist Mode</span>
+          <span class="demo-timer" aria-hidden="true">08:42</span>
+        </div>
+        <ul class="demo-people">
+          <li data-who="ceo"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M19 30c-1-12 5-18 13-18s14 6 13 18c-2-6-5-9-13-9s-11 3-13 9z"/><circle class="av-hair" cx="32" cy="12" r="4.5"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">Priya Nair</span></span><strong>Priya Nair</strong><span>CEO</span></li>
+          <li data-who="cto"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M21 25c0-8 5-12 11-12s11 4 11 12c-3-4-6-5-11-5s-8 1-11 5z"/><g class="av-glasses"><circle cx="27.5" cy="26.5" r="3.6"/><circle cx="36.5" cy="26.5" r="3.6"/><path d="M31.1 26.5h1.8"/></g><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">Arjun Mehta</span></span><strong>Arjun Mehta</strong><span>CTO</span></li>
+          <li data-who="cfo" class="speaking"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M20 26c0-9 5-14 12-14s12 5 12 14c-2-5-6-7-12-7s-10 2-12 7z"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">Rohan Desai</span></span><strong>Rohan Desai</strong><span>CFO</span></li>
+        </ul>
+        <div class="demo-transcript" aria-live="off">
+          <p class="bubble bubble-them"><small>Rohan Desai, CFO</small><span>At &#8377;18 lakh a year, I need to see payback within two quarters. Why should we move mid-year?</span></p>
+          <p class="bubble bubble-you"><small>You</small><span>Fair question. Before price, may I ask what the current tool costs you in deals that slip each quarter?</span></p>
+        </div>
+        <p class="demo-coach"><strong><svg class="icon" aria-hidden="true"><use href="#i-bulb"/></svg> Private coach hint</strong><span>Good redirect. Quantify the slipped deals with the CFO before you return to annual pricing.</span></p>
+        <figcaption>Illustrative session. All people, companies and figures are fictional.</figcaption>
+      </figure>
+    </section>
+    </div>
+
+    <div class="strip">
+      <div class="container strip-inner">
+        <span>Built for</span>
+        <strong><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg> SaaS companies</strong>
+        <strong><svg class="icon" aria-hidden="true"><use href="#i-building"/></svg> IT services firms</strong>
+        <strong><svg class="icon" aria-hidden="true"><use href="#i-briefcase"/></svg> Sales-driven organisations</strong>
+        <strong><svg class="icon" aria-hidden="true"><use href="#i-rocket"/></svg> Founders who sell</strong>
+      </div>
+    </div>
+
+    <section id="orbit" class="orbit-section" aria-labelledby="orbit-heading">
+      <div class="container">
+        <div class="section-head center reveal">
+          <p class="eyebrow">One rehearsal, every stakeholder</p>
+          <h2 id="orbit-heading">Talk to the whole buying committee. Then fix what went wrong.</h2>
+          <p class="lead">You speak. The CEO, CTO and CFO push back in their own way. Afterwards the report, Time Machine and your progress close the loop.</p>
+        </div>
+        <div class="orbit-wrap reveal"><svg class="orbit-svg" viewBox="0 0 720 560" aria-labelledby="orbit-title" role="img"><title id="orbit-title">You at the centre, talking to the CEO, CTO and CFO, with coaching report, Time Machine and progress around them</title><circle class="ring" cx="360" cy="270" r="150"/><circle class="ring" cx="360" cy="270" r="230"/><g class="spin"><line class="spoke" x1="360" y1="270" x2="360.0" y2="120.0"/><line class="spoke" x1="360" y1="270" x2="489.9" y2="345.0"/><line class="spoke" x1="360" y1="270" x2="230.1" y2="345.0"/><circle class="msg msg-1" r="5"/><circle class="msg msg-2" r="5"/><circle class="msg msg-3" r="5"/><g class="spin-rev"><g class="pop"><svg class="avatar-svg" viewBox="0 0 64 64" x="330.0" y="90.0" width="60" height="60"><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M19 30c-1-12 5-18 13-18s14 6 13 18c-2-6-5-9-13-9s-11 3-13 9z"/><circle class="av-hair" cx="32" cy="12" r="4.5"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><text x="360.0" y="168.0">CEO</text></g></g><g class="spin-rev"><g class="pop"><svg class="avatar-svg" viewBox="0 0 64 64" x="459.9" y="315.0" width="60" height="60"><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M21 25c0-8 5-12 11-12s11 4 11 12c-3-4-6-5-11-5s-8 1-11 5z"/><g class="av-glasses"><circle cx="27.5" cy="26.5" r="3.6"/><circle cx="36.5" cy="26.5" r="3.6"/><path d="M31.1 26.5h1.8"/></g><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><text x="489.9" y="393.0">CTO</text></g></g><g class="spin-rev"><g class="pop"><svg class="avatar-svg" viewBox="0 0 64 64" x="200.1" y="315.0" width="60" height="60"><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M20 26c0-9 5-14 12-14s12 5 12 14c-2-5-6-7-12-7s-10 2-12 7z"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><text x="230.1" y="393.0">CFO</text></g></g></g><g class="pop"><circle class="node node-dark" cx="160.8" cy="155.0" r="26"/><svg class="icon node-icon" x="147.8" y="142.0" width="26" height="26"><use href="#i-file"/></svg><text class="cap" x="160.8" y="199.0">Coaching report</text></g><g class="pop"><circle class="node node-dark" cx="559.2" cy="155.0" r="26"/><svg class="icon node-icon" x="546.2" y="142.0" width="26" height="26"><use href="#i-history"/></svg><text class="cap" x="559.2" y="199.0">Time Machine</text></g><g class="pop"><circle class="node node-dark" cx="360.0" cy="500.0" r="26"/><svg class="icon node-icon" x="347.0" y="487.0" width="26" height="26"><use href="#i-chart"/></svg><text class="cap" x="360.0" y="544.0">Your progress</text></g><circle class="outer-dot" r="6"/><g class="pop"><circle class="pulse" cx="360" cy="270" r="46"/><circle class="pulse pulse-2" cx="360" cy="270" r="46"/><circle class="node node-dark" cx="360" cy="270" r="46"/><svg class="icon node-icon" x="344" y="254" width="32" height="32"><use href="#i-mic"/></svg><text x="360" y="336">You</text></g></svg></div>
+        <p class="orbit-legend reveal"><span><span class="dot dot-normal"></span> Messages between you and each buyer</span><span><span class="dot dot-normal"></span> Every call feeds your report, retries and progress</span></p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="problem" class="section" aria-labelledby="problem-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">The problem</p>
+          <h2 id="problem-heading">Most teams learn to sell on real prospects.</h2>
+          <p class="lead">A Bengaluru SaaS rep pitches a CTO on data residency at 11 am and defends annual pricing to a Pune CFO at 4 pm. Three ways to prepare, each with a cost.</p>
+        </div>
+        <div class="grid grid-3 reveal-stagger">
+          <article class="card glass">
+            <svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="paper ink" cx="38" cy="36" r="9"/><path class="fill ink" d="M20 72c0-11 8-18 18-18s18 7 18 18z"/><circle class="paper ink" cx="80" cy="36" r="9"/><path class="fill ink" d="M62 72c0-11 8-18 18-18s18 7 18 18z"/><g class="float"><circle class="paper warn" cx="100" cy="20" r="11"/><path class="warn" d="M100 13v7l5 3"/></g><path class="soft" d="M14 80h92"/></svg>
+            <h3>Roleplay with a manager</h3>
+            <p>Depends on someone else's calendar. Rarely repeatable, never consistent.</p>
+          </article>
+          <article class="card glass">
+            <svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="paper ink" x="42" y="8" width="36" height="72" rx="7"/><path class="ink" d="M55 14h10"/><path class="soft" d="M50 30h20M50 40h20M50 50h12"/><g class="float"><path class="warn-fill warn" d="M96 18l14 24H82z"/><path class="warn" d="M96 27v7M96 38v.5"/></g><path class="accent" d="M18 44c-6 6-6 14 0 20M10 36c-10 12-10 26 0 38"/></svg>
+            <h3>Learning on live calls</h3>
+            <p>One fumbled objection in front of a real buyer can cost a qualified lead.</p>
+          </article>
+          <article class="card glass">
+            <svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="paper ink" d="M30 12h40l12 12v54H30z"/><path class="ink" d="M70 12v12h12"/><path class="soft" d="M40 36h32M40 46h32M40 56h22M40 66h26"/><rect class="paper ink" x="90" y="46" width="12" height="20" rx="6"/><path class="ink" d="M84 62a12 12 0 0 0 24 0M96 74v6"/><path class="warn" d="M82 42l28 40"/></svg>
+            <h3>Scripts and battlecards</h3>
+            <p>Knowing the answer on paper is not saying it confidently when a founder interrupts you.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="how-it-works" class="section" aria-labelledby="how-heading">
+      <div class="container">
+        <div class="how-head">
+          <div class="section-head reveal">
+            <p class="eyebrow">How it works</p>
+            <h2 id="how-heading">Pick. Talk. Review. Retry.</h2>
+            <p class="lead">The whole learning loop fits in one sitting. Practise a scenario, read what went wrong, retry the moment that mattered, and go again until it feels natural.</p>
+            <p><a href="#learn" class="btn btn-secondary btn-sm">What your team learns <svg class="icon icon-sm icon-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+          </div>
+          <div class="loop-wrap reveal"><svg class="illo" viewBox="0 0 320 320" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-labelledby="loop-title" role="img"><title id="loop-title">The practice loop: pick, talk, review, retry</title><circle class="soft" cx="160" cy="160" r="110" stroke-dasharray="4 8"/><path class="ink" d="M236 84l6 2-2 6M236 236l6-2-2-6M84 236l-6-2 2-6M84 84l-6 2 2-6"/><g class="orbit"><circle class="accent-dot orbit-dot" r="7"/></g><circle class="accent-dot orbit-static" cx="160" cy="50" r="7"/><g><circle class="paper ink" cx="160" cy="50" r="28"/><svg x="146" y="36" width="28" height="28" class="icon"><use href="#i-target"/></svg><text class="label" x="160" y="100" text-anchor="middle">Pick</text></g><g><circle class="paper ink" cx="270" cy="160" r="28"/><svg x="256" y="146" width="28" height="28" class="icon"><use href="#i-mic"/></svg><text class="label" x="270" y="210" text-anchor="middle">Talk</text></g><g><circle class="paper ink" cx="160" cy="270" r="28"/><svg x="146" y="256" width="28" height="28" class="icon"><use href="#i-file"/></svg><text class="label" x="160" y="230" text-anchor="middle">Review</text></g><g><circle class="paper ink" cx="50" cy="160" r="28"/><svg x="36" y="146" width="28" height="28" class="icon"><use href="#i-history"/></svg><text class="label" x="50" y="210" text-anchor="middle">Retry</text></g><text class="big" x="160" y="152" text-anchor="middle">Practise.</text><text class="big" x="160" y="172" text-anchor="middle">Improve.</text><text class="caption" x="160" y="190" text-anchor="middle">Repeat as often as you like</text></svg></div>
+        </div>
+        <div class="flow reveal-stagger">
+          <div class="flow-track" aria-hidden="true"><div class="flow-dot"></div></div>
+          <article class="flow-step glass">
+            <p class="step-no">STEP 1</p>
+            <span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-target"/></svg></span>
+            <h3>Pick a challenge</h3>
+            <p class="small muted">Start an <strong>Open Challenge</strong> with a ready-made fictional company, or upload one PDF about your product and generate <strong>Knowledge-based Challenges</strong>.</p>
+          </article>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <article class="flow-step glass">
+            <p class="step-no">STEP 2</p>
+            <span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></span>
+            <h3>Talk to AI buyers</h3>
+            <p class="small muted">One-on-One or a Boardroom of CEO, CTO and CFO. Choose <strong>Assist</strong> for private hints or <strong>Battle</strong> for none.</p>
+          </article>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <article class="flow-step glass">
+            <p class="step-no">STEP 3</p>
+            <span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></span>
+            <h3>Review your report</h3>
+            <p class="small muted">Scores by skill, objections you handled, questions you missed, every point tied to a line in your transcript.</p>
+          </article>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <article class="flow-step glass">
+            <p class="step-no">STEP 4</p>
+            <span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-history"/></svg></span>
+            <h3>Retry with Time Machine</h3>
+            <p class="small muted">Pick any answer you gave and branch a new conversation from that point. Compare both outcomes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="learn" class="section" aria-labelledby="learn-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">What your team learns</p>
+          <h2 id="learn-heading">Six skills, practised until they stick.</h2>
+          <p class="lead">Every scenario works a specific selling skill. Reports score each one, so you always know what to practise next.</p>
+        </div>
+        <div class="learn-grid reveal-stagger">
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="paper ink" x="12" y="16" width="64" height="40" rx="10"/><path class="paper ink" d="M28 56l-6 12 16-12"/><path class="soft" d="M26 30h34M26 40h22"/><g class="float"><circle class="accent-fill accent" cx="86" cy="52" r="14"/><path class="accent" d="M96 62l12 12"/><path class="ink" d="M82 48c0-4 8-4 8 0 0 3-4 3-4 6M86 59v.5"/></g></svg><h3>Discovery questions</h3><p>Uncover the real problem before you pitch. Learn which questions a Pune CFO or a Bengaluru CTO actually answers.</p><span class="tag">Scored: discovery and listening</span></article>
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="paper ink" d="M60 12l28 10v22c0 18-12 30-28 36-16-6-28-18-28-36V22z"/><path class="accent" d="M48 46l9 9 16-18"/><g class="float"><path class="ink" d="M8 30l16 7"/><path class="ink" d="M8 62l16-5"/></g><g class="float float-2"><path class="ink" d="M112 30l-16 7"/><path class="ink" d="M112 62l-16-5"/></g></svg><h3>Objection handling</h3><p>Price, timing, "we already have a vendor". Hear the pushback, answer it, then see a stronger answer in your report.</p><span class="tag">Scored: objection handling</span></article>
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ink" d="M16 76V26M16 76h92"/><path class="soft" d="M16 60h92M16 44h92"/><path class="accent" d="M24 66l18-12 16 8 20-20 20-8"/><circle class="accent-dot" cx="98" cy="34" r="3.5"/><g class="float"><circle class="paper ink" cx="44" cy="22" r="14"/><g transform="translate(37 15) scale(0.6)" class="ink"><path d="M6 3h12M6 8h12M6 13h3M9 13c6.667 0 6.667-10 0-10M6 13l8.5 8"/></g></g></svg><h3>Explaining value in rupees</h3><p>Tie your price to an outcome the buyer cares about, in lakhs and quarters, not features.</p><span class="tag">Scored: value explanation</span></article>
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fill ink" d="M14 62h92a6 6 0 0 1 0 12H14a6 6 0 0 1 0-12z"/><circle class="paper ink" cx="36" cy="40" r="7"/><path class="paper ink" d="M24 62c0-8 5-13 12-13s12 5 12 13"/><circle class="paper ink" cx="60" cy="36" r="7"/><path class="paper ink" d="M48 62c0-10 5-15 12-15s12 5 12 15"/><circle class="paper ink" cx="84" cy="40" r="7"/><path class="paper ink" d="M72 62c0-8 5-13 12-13s12 5 12 13"/><g class="float"><rect class="accent-fill accent" x="46" y="8" width="28" height="16" rx="6"/><path class="accent" d="M56 24l-2 6 8-6"/><circle class="accent-dot" cx="54" cy="16" r="1.6"/><circle class="accent-dot" cx="60" cy="16" r="1.6"/><circle class="accent-dot" cx="66" cy="16" r="1.6"/></g></svg><h3>Managing the room</h3><p>Keep a CEO, CTO and CFO engaged in one meeting when each wants something different.</p><span class="tag">Boardroom feedback per stakeholder</span></article>
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="paper ink" d="M30 10h40l14 14v56H30z"/><path class="ink" d="M70 10v14h14"/><path class="soft" d="M40 36h34M40 48h34M40 60h18"/><g class="float"><circle class="accent-fill accent" cx="86" cy="64" r="11"/><path class="accent" d="M80 64l4 4 8-9"/></g></svg><h3>Product accuracy</h3><p>Upload your own product document and find out which claims you made were supported, contradicted or unverified.</p><span class="tag">Scored with Knowledge Base</span></article>
+          <article class="learn glass"><svg class="illo spot" viewBox="0 0 120 90" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="paper ink" x="50" y="12" width="20" height="36" rx="10"/><path class="ink" d="M40 40a20 20 0 0 0 40 0M60 60v10M48 72h24"/><path class="accent" d="M30 30c-6 8-6 16 0 24M90 30c6 8 6 16 0 24"/><path class="accent float" d="M20 22c-10 12-10 28 0 40M100 22c10 12 10 28 0 40"/></svg><h3>Speaking with confidence</h3><p>Rehearse out loud, as often as you need, with no real prospect on the other end. Battle Mode shows how you sound without help.</p><span class="tag">Voice practice, Assist or Battle</span></article>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="ai-buyers" class="section" aria-labelledby="buyers-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">AI buyers</p>
+          <h2 id="buyers-heading">Buyers who behave like buyers.</h2>
+          <p class="lead">Each persona has a role, a visible profile and hidden motivations you uncover by asking good questions. Tap a card to hear what they might ask you.</p>
+        </div>
+        <div class="grid grid-3 reveal-stagger">
+          <button type="button" class="persona glass" aria-expanded="false">
+            <div class="persona-head"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M19 30c-1-12 5-18 13-18s14 6 13 18c-2-6-5-9-13-9s-11 3-13 9z"/><circle class="av-hair" cx="32" cy="12" r="4.5"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">CEO</span></span><div><h3>Chief Executive</h3><span class="role">Outcomes, speed, risk</span></div></div>
+            <p>Wants to know what changes for the company in two quarters, and why now.</p>
+            <div class="persona-reveal"><div><div class="persona-q"><strong>Sample question</strong>"We are 40 people today. Why does this matter now and not after the next funding round?"</div></div></div>
+            <span class="persona-hint">Tap to hear a question <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+          </button>
+          <button type="button" class="persona glass" aria-expanded="false">
+            <div class="persona-head"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M21 25c0-8 5-12 11-12s11 4 11 12c-3-4-6-5-11-5s-8 1-11 5z"/><g class="av-glasses"><circle cx="27.5" cy="26.5" r="3.6"/><circle cx="36.5" cy="26.5" r="3.6"/><path d="M31.1 26.5h1.8"/></g><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">CTO</span></span><div><h3>Chief Technology Officer</h3><span class="role">Integration, security, workload</span></div></div>
+            <p>Probes APIs, data handling and what happens when something breaks.</p>
+            <div class="persona-reveal"><div><div class="persona-q"><strong>Sample question</strong>"We run on-prem for compliance. Where does our customer data actually sit, and who can see it?"</div></div></div>
+            <span class="persona-hint">Tap to hear a question <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+          </button>
+          <button type="button" class="persona glass" aria-expanded="false">
+            <div class="persona-head"><span class="avatar" aria-hidden="true"><svg class="avatar-svg" viewBox="0 0 64 64" ><circle class="av-bg" cx="32" cy="32" r="32"/><g class="av-figure"><path class="av-body" d="M13 64c0-11 8.5-18 19-18s19 7 19 18z"/><circle class="av-head" cx="32" cy="27" r="12"/></g><path class="av-hair" d="M20 26c0-9 5-14 12-14s12 5 12 14c-2-5-6-7-12-7s-10 2-12 7z"/><g class="av-pupils"><g class="av-eyes"><circle cx="27.5" cy="26.5" r="1.7"/><circle cx="36.5" cy="26.5" r="1.7"/></g></g><ellipse class="av-mouth" cx="32" cy="33" rx="3" ry="0.8"/><circle class="av-ring" cx="32" cy="32" r="30"/></svg><span class="visually-hidden">CFO</span></span><div><h3>Chief Financial Officer</h3><span class="role">Total cost, terms, payback</span></div></div>
+            <p>Pushes back on pricing, contract length and anything that looks like a hidden cost.</p>
+            <div class="persona-reveal"><div><div class="persona-q"><strong>Sample question</strong>"Your annual plan is higher than what we pay today. Show me payback inside two quarters or we stay put."</div></div></div>
+            <span class="persona-hint">Tap to hear a question <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+          </button>
+        </div>
+        <div class="grid grid-3 reveal-stagger" style="margin-top:1rem">
+          <article class="card-plain">
+            <p style="margin-bottom:0.5rem"><span class="tag">One-on-One</span> <span class="tag">Discovery</span></p>
+            <h3 style="font-size:17px">Sceptical Founder</h3>
+            <p class="small muted" style="margin:0">Burnt by vendors before. Run discovery and earn the right to pitch.</p>
+          </article>
+          <article class="card-plain">
+            <p style="margin-bottom:0.5rem"><span class="tag">One-on-One</span> <span class="tag">Pricing</span></p>
+            <h3 style="font-size:17px">Tough Negotiator</h3>
+            <p class="small muted" style="margin:0">Likes the product, insists on a steep discount. Hold your price, keep the deal.</p>
+          </article>
+          <article class="card-plain">
+            <p style="margin-bottom:0.5rem"><span class="tag">Boardroom</span> <span class="tag">CEO &middot; CTO &middot; CFO</span></p>
+            <h3 style="font-size:17px">The Boardroom</h3>
+            <p class="small muted" style="margin:0">Three executives, three agendas. Leave with a clear next step.</p>
+          </article>
+        </div>
+        <p class="small muted reveal" style="margin-top:1rem">Illustrative Open Challenges. Every company and person is fictional. Knowledge-based Challenges are built around your real product instead.</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="modes" class="section" aria-labelledby="modes-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Two modes</p>
+          <h2 id="modes-heading">Assist to learn. Battle to prove it.</h2>
+          <p class="lead">Same conversation engine. Switch the coach on while you learn, then off to see how you really perform.</p>
+        </div>
+        <div class="reveal">
+          <div class="segmented" role="tablist" aria-label="Practice mode" data-modes>
+            <button type="button" role="tab" id="tab-assist" aria-controls="panel-assist" aria-selected="true"><svg class="icon" aria-hidden="true"><use href="#i-bulb"/></svg> Assist Mode</button>
+            <button type="button" role="tab" id="tab-battle" aria-controls="panel-battle" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-swords"/></svg> Battle Mode</button>
+          </div>
+          <div class="mode-panel active" id="panel-assist" role="tabpanel" aria-labelledby="tab-assist">
+            <div class="mode-callout glass">
+              <h3>Private coaching while you talk</h3>
+              <p class="muted">Ask the coach at any point. The AI buyers never hear the hint unless you choose to say it. With your product document attached, suggestions use verified content from it.</p>
+              <div class="mode-row"><svg class="icon yes" aria-hidden="true"><use href="#i-check"/></svg><span>On-demand hints during the call</span></div>
+              <div class="mode-row"><svg class="icon yes" aria-hidden="true"><use href="#i-check"/></svg><span>Product-aware suggestions from your Knowledge Base</span></div>
+              <div class="mode-row"><svg class="icon yes" aria-hidden="true"><use href="#i-check"/></svg><span>Full report and Time Machine afterwards</span></div>
+            </div>
+            <div class="card-plain">
+              <h3 style="font-size:16px">Best for</h3>
+              <ul class="list-check">
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Learning a new product or price list</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Preparing for a specific meeting tomorrow</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Onboarding new joiners in their first week</span></li>
+              </ul>
+              <p class="small muted" style="margin-top:1rem">Reports record that assistance was used, so an assisted score is never shown as equal to an unassisted one.</p>
+            </div>
+          </div>
+          <div class="mode-panel" id="panel-battle" role="tabpanel" aria-labelledby="tab-battle">
+            <div class="mode-callout glass">
+              <h3>No hints. Just you and the buyer.</h3>
+              <p class="muted">Everything else stays the same: voice conversation, realistic objections, full transcript. Evaluation happens after the call.</p>
+              <div class="mode-row"><svg class="icon no" aria-hidden="true"><use href="#i-x"/></svg><span>No hints during the call</span></div>
+              <div class="mode-row"><svg class="icon yes" aria-hidden="true"><use href="#i-check"/></svg><span>Same AI buyers, same scenarios</span></div>
+              <div class="mode-row"><svg class="icon yes" aria-hidden="true"><use href="#i-check"/></svg><span>Full report and Time Machine afterwards</span></div>
+            </div>
+            <div class="card-plain">
+              <h3 style="font-size:16px">Best for</h3>
+              <ul class="list-check">
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Honest self-assessment before a real call</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Readiness checks for a new territory or segment</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Building confidence under pressure</span></li>
+              </ul>
+              <p class="small muted" style="margin-top:1rem">Battle scores are the cleanest view of how you perform without help.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="time-machine" class="section" aria-labelledby="tm-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Time Machine</p>
+          <h2 id="tm-heading">Lost the room? Go back and try again.</h2>
+          <p class="lead">After a call, pick any answer you gave and branch a new conversation from that exact moment. The original is never overwritten. Try it below.</p>
+        </div>
+        <div class="tm glass reveal" data-time-machine>
+          <div class="tm-grid">
+            <div class="tm-col">
+              <h3><svg class="icon icon-sm" aria-hidden="true"><use href="#i-file"/></svg> Original call &middot; Tough Negotiator</h3>
+              <p class="tm-turn"><small>Meera Iyer, Head of Procurement</small>We like the product. But at this price we will go with the vendor who quoted 25% less.</p>
+              <p class="tm-turn you" data-label="your first answer">
+                <small>You</small>I can check with my manager about a discount to match that.
+                <button type="button" class="btn btn-sm" data-branch data-who="Meera Iyer, Head of Procurement"
+                  data-alt="Before we talk discount, can I ask what the lower quote includes for onboarding and support in the first year?"
+                  data-reply="Honestly, it is self-serve onboarding. We had assumed our team would manage that."
+                  data-outcome="The buyer starts comparing total cost rather than list price. The conversation moves off discount and on to value."><svg class="icon icon-sm" aria-hidden="true"><use href="#i-branch"/></svg> Try a different answer</button>
+              </p>
+              <p class="tm-turn"><small>Meera Iyer</small>Good. Send the revised quote by Friday and we will decide.</p>
+              <p class="tm-turn you" data-label="your second answer">
+                <small>You</small>Sure, I will send it by Friday.
+                <button type="button" class="btn btn-sm" data-branch data-who="Meera Iyer, Head of Procurement"
+                  data-alt="I will send it by Friday. Before that, could we get your implementation lead on a 20-minute call so the quote reflects what you actually need?"
+                  data-reply="That is reasonable. I will loop in Karthik from our IT team for Thursday."
+                  data-outcome="You secure a second stakeholder and a next meeting instead of a one-way quote. The deal stays active."><svg class="icon icon-sm" aria-hidden="true"><use href="#i-branch"/></svg> Try a different answer</button>
+              </p>
+            </div>
+            <div class="tm-col">
+              <h3><svg class="icon icon-sm" aria-hidden="true"><use href="#i-branch"/></svg> New branch</h3>
+              <svg class="tm-svg" viewBox="0 0 320 64" aria-hidden="true">
+                <path class="tm-main" d="M12 20H308"/>
+                <circle class="tm-node" cx="12" cy="20" r="4"/><circle class="tm-node" cx="110" cy="20" r="4"/><circle class="tm-node" cx="210" cy="20" r="4"/><circle class="tm-node" cx="308" cy="20" r="4"/>
+                <text x="12" y="10">Original call</text>
+                <path class="tm-fork" pathLength="1" stroke-dasharray="0 1" d="M110 20C140 20 140 46 170 46H308"/>
+                <path class="tm-fork" pathLength="1" stroke-dasharray="0 1" d="M210 20C235 20 235 46 260 46H308"/>
+                <circle class="tm-fork-dot" cx="110" cy="20" r="5"/><circle class="tm-fork-dot" cx="210" cy="20" r="5"/>
+                <text class="tm-label-branch" opacity="0" x="170" y="60">New branch</text>
+              </svg>
+              <div class="tm-branch"><span>Choose one of your answers on the left and press <strong>Try a different answer</strong>.</span></div>
+            </div>
+          </div>
+          <div class="tm-foot">
+            <span data-tm-status>No branch yet. The original call is complete and saved.</span>
+            <button type="button" class="btn btn-secondary btn-sm" data-tm-reset hidden><svg class="icon icon-sm" aria-hidden="true"><use href="#i-x"/></svg> Reset demo</button>
+          </div>
+        </div>
+        <p class="small muted reveal" style="margin-top:1rem">Illustrative demo with fictional people and outcomes. In the product, you continue the branch by voice and receive a separate report for it.</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="report" class="section" aria-labelledby="report-heading">
+      <div class="container">
+        <div class="grid grid-2-lg" style="gap:2rem;align-items:center">
+          <div class="reveal">
+            <p class="eyebrow">After every call</p>
+            <h2 style="font-size:32px">Coaching written from your own transcript.</h2>
+            <p class="lead muted">No generic checklist. Every strength and mistake points to the exact line where it happened.</p>
+            <ul class="list-check" style="margin-top:1.25rem">
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Scores by skill:</strong> discovery, communication, objection handling, value explanation.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Product accuracy check</strong> when your own document is attached: supported, contradicted or unverified.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Stakeholder-by-stakeholder</strong> feedback for Boardroom calls.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Suggested next step,</strong> including which answer to retry with Time Machine.</span></li>
+            </ul>
+            <p class="small muted" style="margin-top:1.25rem">Scores and outcomes are training results inside a simulation, not predictions of real customer behaviour or revenue.</p>
+          </div>
+          <div class="report glass reveal">
+            <div class="report-illo"><svg class="illo" viewBox="0 0 240 132" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="paper ink" x="10" y="8" width="140" height="116" rx="10"/><path class="soft" d="M24 24h60"/><rect class="fill" x="24" y="34" width="112" height="6" rx="3"/><rect class="fill" x="24" y="46" width="90" height="6" rx="3"/><rect class="accent-fill" x="18" y="56" width="124" height="18" rx="6"/><rect class="accent-dot" x="24" y="62" width="100" height="6" rx="3" opacity="0.7"/><rect class="fill" x="24" y="84" width="104" height="6" rx="3"/><rect class="fill" x="24" y="96" width="70" height="6" rx="3"/><rect class="fill" x="24" y="108" width="96" height="6" rx="3"/><g class="float"><path class="accent-fill accent" d="M152 56h78a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6h-70l-8 6z"/><text class="caption tiny" x="160" y="67">Lost the CFO here.</text><text class="caption tiny" x="160" y="76">Ask about payback first.</text></g><path class="accent" d="M148 65h4" stroke-dasharray="2 3"/><path class="soft" d="M166 20h60"/><rect class="fill" x="166" y="28" width="60" height="6" rx="3"/><rect class="accent-dot" x="166" y="28" width="42" height="6" rx="3" opacity="0.8"/><rect class="fill" x="166" y="40" width="60" height="6" rx="3"/><rect class="accent-dot" x="166" y="40" width="28" height="6" rx="3" opacity="0.8"/><path class="accent" d="M80 116c30 0 30-8 60-8" stroke-dasharray="3 3"/><circle class="accent-dot" cx="140" cy="108" r="3"/><text class="caption tiny" x="148" y="112">Retry from here</text></svg></div>
+            <div class="report-row"><span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-ear"/></svg></span><div><strong>Discovery and listening</strong><span>Questions asked, questions missed, and where you talked over the buyer.</span></div></div>
+            <div class="report-row"><span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></span><div><strong>Objection handling</strong><span>Each objection raised, your response, and a stronger alternative.</span></div></div>
+            <div class="report-row"><span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-rupee"/></svg></span><div><strong>Value explanation</strong><span>Whether you tied the price to an outcome the buyer cares about.</span></div></div>
+            <div class="report-row"><span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span><div><strong>Product claims</strong><span>What you said about your product, checked against your uploaded material.</span></div></div>
+            <div class="report-row"><span class="icon-tile"><svg class="icon" aria-hidden="true"><use href="#i-history"/></svg></span><div><strong>Retry suggestion</strong><span>The one answer most worth trying again with Time Machine.</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="simulated-deals" class="section" aria-labelledby="deals-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Roadmap</p>
+          <h2 id="deals-heading">Simulated Deals <span class="badge badge-soon">Coming Soon</span></h2>
+          <p class="lead"><strong>Planned, not yet available.</strong> Indian enterprise deals rarely close in one meeting. Simulated Deals will link a series of practice calls to the same fictional customer so each meeting remembers the last.</p>
+        </div>
+        <div class="deal-flow reveal-stagger" aria-label="Planned multi-meeting flow">
+          <div class="deal-step"><strong>Discovery</strong><span>You promise the CTO an answer on integration.</span></div>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <div class="deal-step"><strong>Demo</strong><span>The CTO expects to see that answer.</span></div>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <div class="deal-step"><strong>Technical review</strong><span>The engineering lead refers to the demo.</span></div>
+          <div class="flow-arrow" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></div>
+          <div class="deal-step"><strong>Negotiation</strong><span>The CFO quotes the range you gave in discovery.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="whats-available" class="section" aria-labelledby="available-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Transparency</p>
+          <h2 id="available-heading">What you can use today. What is coming.</h2>
+        </div>
+        <div class="avail reveal-stagger">
+          <div class="card-plain">
+            <h3 style="font-size:16px;display:flex;align-items:center;gap:0.5rem"><span class="badge badge-now"><span class="dot dot-normal"></span>Available now</span></h3>
+            <div class="chips" style="margin-top:0.75rem">
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> AI voice sales practice</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Open Challenges</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Knowledge-based Challenges from your PDF</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> CEO, CTO and CFO personas</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> One-on-One and Boardroom calls</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Assist Mode and Battle Mode</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Post-call reports and transcripts</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Time Machine retry</span>
+              <span class="chip chip-now"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Personal Dashboard and Sessions</span>
+            </div>
+          </div>
+          <div class="card-plain">
+            <h3 style="font-size:16px;display:flex;align-items:center;gap:0.5rem"><span class="badge badge-soon"><span class="dot dot-borderline"></span>Coming Soon</span></h3>
+            <div class="chips" style="margin-top:0.75rem">
+              <span class="chip chip-soon"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg> Simulated Deals</span>
+              <span class="chip chip-soon"><svg class="icon" aria-hidden="true"><use href="#i-chart"/></svg> Team analytics and manager views</span>
+              <span class="chip chip-soon"><svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg> Live-call assistance</span>
+              <span class="chip chip-soon"><svg class="icon" aria-hidden="true"><use href="#i-plug"/></svg> CRM and integrations</span>
+            </div>
+            <p style="margin-top:1.25rem"><a href="roadmap.html" class="btn btn-secondary btn-sm">Full roadmap <svg class="icon icon-sm icon-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="faq" class="section" aria-labelledby="faq-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-heading">Questions sales leaders ask us</h2>
+        </div>
+        <div class="faq reveal-stagger">
+          <details class="glass"><summary>Does CallPilot AI join my real customer calls? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>Not yet. Today CallPilot AI is a practice environment with simulated buyers. Real-time assistance on live customer calls is planned and marked Coming Soon.</p></div></details>
+          <details class="glass"><summary>Do I need to upload product documents to start? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>No. Open Challenges work immediately with ready-made fictional companies. Uploading one PDF or text document is optional and unlocks Knowledge-based Challenges, product-aware hints and product accuracy checks.</p></div></details>
+          <details class="glass"><summary>Who can see my uploaded documents and my sessions? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>Knowledge Base entries, sessions and reports belong to the account that created them. The AI buyers do not silently read your document. They learn product facts only when you say them in the conversation.</p></div></details>
+          <details class="glass"><summary>Is Time Machine a third practice mode? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>No. The two modes are Assist and Battle. Time Machine happens after a completed call: pick one of your answers and branch a new conversation from that point.</p></div></details>
+          <details class="glass"><summary>Do the scores predict whether a real customer will buy? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>No. Scores and simulated outcomes describe how you performed inside a training simulation. They are not forecasts of real purchasing decisions or revenue.</p></div></details>
+          <details class="glass"><summary>Is there a limit on how much I can practise? <svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="faq-body"><p>Each account has a practice allowance for voice sessions, shown in the app. Time Machine retries count towards the same allowance.</p></div></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="get-started" class="section" aria-labelledby="start-heading">
+      <div class="container">
+        <div class="cta-panel reveal">
+          <svg class="cta-art" viewBox="0 0 200 200" stroke-width="1.5" aria-hidden="true"><circle class="ring" cx="100" cy="100" r="40" opacity="0.5"/><circle class="ring" cx="100" cy="100" r="60" opacity="0.4"/><circle class="ring" cx="100" cy="100" r="80" opacity="0.3"/><circle class="ring" cx="100" cy="100" r="95" opacity="0.2"/><g class="mic" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="90" y="78" width="20" height="34" rx="10"/><path d="M80 104a20 20 0 0 0 40 0M100 124v8"/></g></svg>
+          <p class="eyebrow">Early access</p>
+          <h2 id="start-heading">Ready to practise before it really counts?</h2>
+          <p>CallPilot AI is being prepared for early users in India. Practice accounts, demos and the waitlist are not yet open through this page. The sign-up link will appear here the moment they are.</p>
+          <div class="btn-row">
+            <a href="#how-it-works" class="btn btn-primary btn-lg">Review the practice loop <svg class="icon icon-sm icon-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a href="roadmap.html" class="btn btn-secondary btn-lg">Read the roadmap</a>
+          </div>
+          <p class="fine">No pricing, testimonials or performance figures are published yet. Planned features are clearly marked.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <a href="index.html" class="brand" aria-label="CallPilot AI home">
+            <span class="logo-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span><span class="brand-name">CallPilot AI</span><span class="brand-by">by Zavara</span></span>
+          </a>
+          <p style="margin-top:1rem;max-width:28rem">AI-powered sales practice and coaching for individuals and B2B sales teams in India.</p>
+        </div>
+        <nav aria-label="Footer">
+          <ul class="footer-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#how-it-works">How it works</a></li>
+            <li><a href="roadmap.html">Roadmap</a></li>
+            <li><a href="index.html#faq">FAQ</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="footer-fine">All companies, people and scenarios shown on this site are fictional and for practice only. Features marked Coming Soon are planned and not yet available. Practice scores are simulated training results, not predictions of real customer behaviour.</p>
+    </div>
+  </footer>
+  <button type="button" class="icon-btn to-top" aria-label="Back to top"><svg class="icon"><use href="#i-arrow-up"/></svg></button>
+  <script src="js/main.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/motion@12.23.12/dist/motion.min.js" defer></script>
+  <script src="js/motion-fx.js" defer></script>
+</body>
+</html>
