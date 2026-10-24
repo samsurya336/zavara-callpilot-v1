@@ -6,8 +6,9 @@ installed in `apps/client-console`; its scripts always pass `--workdir ../..`. D
 `client-console` so the previously started Docker database is reused.
 
 This is deliberately a one-day hackathon baseline, not production tenant security.
-**Every signed-in user can read and modify all profiles, organisations, memberships, and
-documents, including other users' data.** Anonymous callers cannot access those resources.
+Most legacy foundation tables remain broad for the demo. Knowledge Base rows and
+`documents/knowledge/<user-id>/...` objects are owner-scoped by the latest migration.
+Anonymous callers cannot access those resources.
 There are no invitations, extra roles, email confirmation steps, OTP login flows, or MFA.
 Do not deploy sensitive or real customer data under these policies.
 
@@ -121,9 +122,10 @@ and SDK errors in the consuming feature. The SDK persists and refreshes browser 
 
 ## Storage
 
-The migration creates the private `documents` bucket for PDF/TXT files up to 50 MiB each.
-Every signed-in user may upload, list, download, update, and delete its objects. Public
-download URLs do not work for this private bucket; use authenticated downloads or signed URLs.
+The migration creates the private `documents` bucket. Knowledge Base uploads are PDF-only,
+limited to 10 MiB, and stored under `knowledge/<user-id>/<knowledge-id>/...`. Only the owner
+may list, download, or delete those objects. Public download URLs do not work for this private
+bucket; use authenticated downloads or signed URLs.
 Files are not automatically removed when a profile or organisation is deleted. Feature
 repositories should choose paths and perform their own file cleanup when those flows exist.
 
@@ -312,6 +314,7 @@ corepack pnpm supabase db push --dry-run
 corepack pnpm supabase db push
 corepack pnpm supabase functions deploy list-users-organizations
 corepack pnpm supabase secrets set --env-file ../../supabase/functions/.env
+corepack pnpm supabase functions deploy extract-knowledge
 corepack pnpm supabase functions deploy elevenlabs-agent-session
 corepack pnpm supabase functions deploy elevenlabs-post-call
 ```
@@ -323,9 +326,10 @@ configure remote Auth. Point the frontend environment at that project's URL and 
 key, then rebuild. The migration creates remote bucket metadata and policies, not local files.
 Do not run the local smoke test against remote data.
 
-The permissive policies and diagnostic expose all hackathon accounts to every signed-in
-user. Replace them with tenant isolation and restrict/remove the diagnostic before using
-real customer data or treating this as a production deployment.
+Most legacy policies and the diagnostic expose hackathon data broadly. Replace them with
+tenant isolation and restrict/remove the diagnostic before using real customer data or
+treating this as a production deployment. Knowledge Base ownership is enforced by the latest
+migration.
 
 ## Tool and Image Versions
 

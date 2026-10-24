@@ -84,7 +84,7 @@ export function KnowledgePage() {
           </span>
           <h2 className="text-base font-medium">No knowledge items yet</h2>
           <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            Optional. Add a PDF or TXT about your product to generate Knowledge-based Challenges.
+            Optional. Add a PDF about your product to generate Knowledge-based Challenges.
           </p>
         </div>
       ) : (

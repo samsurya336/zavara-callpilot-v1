@@ -15,16 +15,15 @@ const fileOfSize = (name: string, size: number, type = '') => {
 }
 
 describe('knowledge services', () => {
-  it('accepts one PDF or TXT file within the size limit', () => {
+  it('accepts one PDF file within the size limit', () => {
     expect(validateKnowledgeFile(fileOfSize('guide.pdf', 2048, 'application/pdf'))).toBeNull()
-    expect(validateKnowledgeFile(fileOfSize('NOTES.TXT', 2048, 'text/plain'))).toBeNull()
-    expect(validateKnowledgeFile(fileOfSize('notes.txt', 2048))).toBeNull()
+    expect(validateKnowledgeFile(fileOfSize('NOTES.PDF', 2048, 'application/pdf'))).toBeNull()
   })
 
   it('rejects unsupported, mislabelled, empty and oversized files', () => {
-    expect(validateKnowledgeFile(fileOfSize('deck.pptx', 2048))).toBe('Choose a PDF or TXT file.')
+    expect(validateKnowledgeFile(fileOfSize('deck.pptx', 2048))).toBe('Choose a PDF file.')
     expect(validateKnowledgeFile(fileOfSize('guide.pdf', 2048, 'image/png'))).toBe(
-      'Choose a PDF or TXT file.',
+      'Choose a PDF file.',
     )
     expect(validateKnowledgeFile(fileOfSize('guide.pdf', 0, 'application/pdf'))).toBe(
       'This file is empty.',
@@ -48,7 +47,6 @@ describe('knowledge services', () => {
     expect(formatFileSize(2.4 * 1024 * 1024)).toBe('2.4 MB')
     expect(formatFileSize(KNOWLEDGE_MAX_FILE_SIZE)).toBe('10 MB')
     expect(fileTypeLabel('application/pdf')).toBe('PDF')
-    expect(fileTypeLabel('text/plain')).toBe('TXT')
     expect(fileTypeLabel('application/octet-stream')).toBe('File')
     expect(titleFromFileName('pricing-guide_2026.pdf')).toBe('Pricing guide 2026')
   })
