@@ -28,6 +28,10 @@ services:
       - path: /js/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
+      # config.js changes with APP_URL on every deploy, so it must never be cached long-term.
+      - path: /js/config.js
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
