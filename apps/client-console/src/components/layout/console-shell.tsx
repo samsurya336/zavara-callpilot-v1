@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import {
   BookOpen,
-  Building2,
   ChevronRight,
   History,
   LayoutDashboard,
@@ -12,8 +11,6 @@ import {
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  Plug,
-  Radio,
   Settings2,
   Sun,
   Swords,
@@ -23,7 +20,6 @@ import {
 import { TimeMachineCallHost } from '@/features/challenges/time-machine'
 import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ConsolePage, pageTitles } from '@/features/workspace/console-page'
