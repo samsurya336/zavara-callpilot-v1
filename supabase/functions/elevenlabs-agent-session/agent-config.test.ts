@@ -20,6 +20,7 @@ Deno.test('one-on-one agent uses the lead voice, call limit and signed-URL auth'
   assert.equal(conversation.max_duration_seconds, 300)
   assert.equal(config.platform_settings.auth.enable_auth, true)
   assert.match(agent.first_message, /^Hi \{\{user_name\}\}, I'm Priya Shah, CFO/)
+  assert.equal(agent.disable_first_message_interruptions, true)
   assert.match(agent.prompt.prompt, /Needs to cut tooling spend by 15%/)
   assert.match(agent.prompt.prompt, /Too expensive; We already use spreadsheets/)
   assert.doesNotMatch(agent.prompt.prompt, /Boardroom rules/)

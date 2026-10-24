@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { buildAgentConfig } from './agent-config.ts'
-import { createAgent, deleteAgent, getSignedUrl, updateAgent } from './elevenlabs.ts'
+import {
+  createAgent,
+  deleteAgent,
+  getConversationToken,
+  getSignedUrl,
+  updateAgent,
+} from './elevenlabs.ts'
 import { boardroomParticipants, challengeFixture } from './test-fixtures.ts'
 
 // Opt-in: creates a real agent in the ElevenLabs workspace, then deletes it. Needs
@@ -22,6 +28,9 @@ Deno.test({
       await updateAgent(agentId, config)
       const { signedUrl, conversationId } = await getSignedUrl(agentId)
       assert.match(signedUrl, /^wss:\/\//)
+      const rtc = await getConversationToken(agentId)
+      assert.ok(rtc.conversationToken)
+      assert.match(rtc.conversationId, /^conv_/)
       console.log(`conversationId returned: ${conversationId ?? 'none'}`)
     } finally {
       await deleteAgent(agentId)

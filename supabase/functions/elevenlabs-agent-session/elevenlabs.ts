@@ -66,3 +66,13 @@ export async function getSignedUrl(agentId: string) {
     new URL(body.signed_url).searchParams.get('conversation_id')
   return { signedUrl: body.signed_url, conversationId }
 }
+
+// WebRTC carries microphone audio independently of the browser's WebSocket lifecycle.
+export async function getConversationToken(agentId: string) {
+  const params = new URLSearchParams({ agent_id: agentId })
+  const body = await request<{ token: string; conversation_id: string }>(
+    `/conversation/token?${params}`,
+  )
+  if (!body.token || !body.conversation_id) throw new Error('Incomplete voice session')
+  return { conversationToken: body.token, conversationId: body.conversation_id }
+}

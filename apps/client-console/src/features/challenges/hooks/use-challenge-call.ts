@@ -19,6 +19,8 @@ export function useChallengeCall(challenge: Challenge) {
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
   const phaseRef = useRef<CallPhase>('idle')
   const callSessionId = useRef<string | null>(null)
+  const activation = useRef<Promise<unknown>>(Promise.resolve())
+  const generation = useRef(0)
 
   const setCallPhase = useCallback((next: CallPhase) => {
     phaseRef.current = next
@@ -30,20 +32,22 @@ export function useChallengeCall(challenge: Challenge) {
     const sessionId = callSessionId.current
     callSessionId.current = null
     if (sessionId) {
-      void challengeRepository
-        .endCall(sessionId)
+      void activation.current
+        .catch(() => undefined)
+        .then(() => challengeRepository.endCall(sessionId))
         .catch((cause: unknown) => console.error('Could not end call session', cause))
     }
   }, [])
 
   const conversation = useConversation({
     onConnect: ({ conversationId }) => {
+      if (phaseRef.current !== 'connecting') return
       setSecondsLeft(challenge.durationMinutes * 60)
       setCallPhase('active')
       const sessionId = callSessionId.current
       if (!sessionId) return
       // Bookkeeping only: the audio is already live, so a failure here is logged, not hung up.
-      void challengeRepository
+      activation.current = challengeRepository
         .activateCall(sessionId, conversationId)
         .catch((cause: unknown) => console.error('Could not activate call session', cause))
     },
@@ -80,26 +84,37 @@ export function useChallengeCall(challenge: Challenge) {
   }
 
   const start = async () => {
+    if (['requesting', 'connecting', 'active'].includes(phaseRef.current)) return
+    const attempt = ++generation.current
+    activation.current = Promise.resolve()
     setError(null)
     setSecondsLeft(null)
     setCallPhase('requesting')
     try {
       const permission = await navigator.mediaDevices.getUserMedia({ audio: true })
       permission.getTracks().forEach((track) => track.stop())
+      if (generation.current !== attempt) return
       const session = await challengeRepository.startCall(challenge.id)
+      if (generation.current !== attempt) {
+        await challengeRepository.endCall(session.callSessionId)
+        return
+      }
       callSessionId.current = session.callSessionId
       setCallPhase('connecting')
-      startSession({
-        signedUrl: session.signedUrl,
-        connectionType: 'websocket',
+      await startSession({
+        conversationToken: session.conversationToken,
+        connectionType: 'webrtc',
         dynamicVariables: session.dynamicVariables,
       })
+      if (generation.current !== attempt) endSession()
     } catch (cause) {
+      if (generation.current !== attempt) return
       failCall(cause instanceof Error ? cause.message : 'Could not start the call. Try again.')
     }
   }
 
   const end = useCallback(() => {
+    generation.current++
     setCallPhase('ended')
     endSession()
     releaseSession()
@@ -119,7 +134,13 @@ export function useChallengeCall(challenge: Challenge) {
   }, [phase, challenge.durationMinutes, end])
 
   // Leaving mid-call: the provider hangs up the audio, this frees the server session.
-  useEffect(() => releaseSession, [releaseSession])
+  useEffect(
+    () => () => {
+      generation.current++
+      releaseSession()
+    },
+    [releaseSession],
+  )
 
   const [buyerSpeaking, setBuyerSpeaking] = useState(false)
   useEffect(() => {

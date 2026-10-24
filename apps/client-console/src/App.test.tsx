@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConsoleShell as App } from '@/components/layout/console-shell'
 import { AppProviders } from '@/app/providers'
+import { AuthContext } from '@/features/auth/store'
 import { useUIStore } from '@/stores/ui-store'
 
 beforeEach(() => {
@@ -14,7 +15,9 @@ beforeEach(() => {
 function renderApp() {
   return render(
     <AppProviders>
-      <App />
+      <AuthContext.Provider value={{ session: null, loading: false, error: null, retry: vi.fn() }}>
+        <App />
+      </AuthContext.Provider>
     </AppProviders>,
   )
 }

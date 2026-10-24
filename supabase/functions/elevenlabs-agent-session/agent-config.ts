@@ -38,6 +38,7 @@ export interface AgentConfig {
   conversation_config: {
     agent: {
       first_message: string
+      disable_first_message_interruptions: boolean
       language: string
       prompt: { prompt: string; llm: string; temperature: number }
       dynamic_variables: { dynamic_variable_placeholders: Record<string, string> }
@@ -121,6 +122,8 @@ export function buildAgentConfig(
     conversation_config: {
       agent: {
         first_message: firstMessage(challenge, lead, others),
+        // Speaker echo and room noise were cutting the greeting off in its first second.
+        disable_first_message_interruptions: true,
         language: BASE_AGENT.language,
         prompt: {
           prompt: personaPrompt(challenge, participants, labels),

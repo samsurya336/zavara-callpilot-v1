@@ -31,6 +31,7 @@ import {
   deleteAgent,
   ElevenLabsError,
   getConversation,
+  getConversationToken,
   getSignedUrl,
   updateAgent,
 } from './elevenlabs.ts'
@@ -110,6 +111,12 @@ Deno.serve(async (request) => {
     ) {
       return jsonResponse({ error: 'Challenge does not have enough participants' }, 422)
     }
+    if (
+      body.connectionType !== undefined && !['webrtc', 'websocket'].includes(body.connectionType)
+    ) {
+      return jsonResponse({ error: 'connectionType must be webrtc or websocket' }, 400)
+    }
+    const credentials = body.connectionType === 'webrtc' ? getConversationToken : getSignedUrl
     const mode: CallMode = body.mode ?? 'BATTLE'
 
     // Task 11 guard: check the account allowance and event budget here, before billable work.
@@ -123,12 +130,12 @@ Deno.serve(async (request) => {
     let agent = await ensureAgent(db, challenge, config, hash)
     let signed
     try {
-      signed = await getSignedUrl(agent.agentId)
+      signed = await credentials(agent.agentId)
     } catch (error) {
       if (!(error instanceof ElevenLabsError && error.status === 404)) throw error
       // The cached agent was deleted on ElevenLabs; replace it.
       agent = await createAndStoreAgent(db, challenge, config, hash, agent.agentId)
-      signed = await getSignedUrl(agent.agentId)
+      signed = await credentials(agent.agentId)
     }
     if (!signed.conversationId) {
       console.warn(`No conversation ID for agent ${agent.agentId}; webhook cannot match this call`)
@@ -155,7 +162,9 @@ Deno.serve(async (request) => {
 
     return jsonResponse({
       callSessionId,
-      signedUrl: signed.signedUrl,
+      ...('conversationToken' in signed
+        ? { conversationToken: signed.conversationToken }
+        : { signedUrl: signed.signedUrl }),
       mode,
       challenge: {
         id: challenge.id,

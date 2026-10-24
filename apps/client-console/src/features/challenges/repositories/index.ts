@@ -48,7 +48,7 @@ export interface GenerateChallengeInput {
 
 export interface CallSession {
   callSessionId: string
-  signedUrl: string
+  conversationToken: string
   challenge: {
     id: string
     title: string
@@ -159,10 +159,10 @@ export const challengeRepository = {
   async startCall(challengeId: string) {
     const { data, error } = await supabase.functions.invoke<CallSession>(
       'elevenlabs-agent-session',
-      { body: { challengeId } },
+      { body: { challengeId, connectionType: 'webrtc' } },
     )
     if (error) throw await functionError(error, 'Could not prepare the call. Try again.')
-    if (!data?.signedUrl || !data.callSessionId) {
+    if (!data?.conversationToken || !data.callSessionId) {
       throw new Error('The call service returned an incomplete session.')
     }
     return data

@@ -1,6 +1,7 @@
 import { ConversationProvider } from '@elevenlabs/react'
 import { Dialog } from 'radix-ui'
 import { CircleAlert, Info, Loader2, Mic, MicOff, PhoneOff, Play, Target, X } from 'lucide-react'
+import { useUIStore } from '@/stores/ui-store'
 import { Button } from '@/components/ui/button'
 import { useAccountUsage, useChallengeCall } from '../hooks'
 import type { Challenge } from '../repositories'
@@ -32,6 +33,7 @@ function formatClock(seconds: number) {
 }
 
 function ChallengeDetails({ challenge }: { challenge: Challenge }) {
+  const setPage = useUIStore((state) => state.setPage)
   const call = useChallengeCall(challenge)
   const { phase, error, secondsLeft } = call
   const boardroom = challenge.callType === 'BOARDROOM'
@@ -161,6 +163,11 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
         </section>
         <section className="knowledge-sheet-section" aria-label="Call setup">
           <Allowance challenge={challenge} />
+          {(phase === 'ended' || (phase === 'error' && secondsLeft !== null)) && (
+            <Button className="mt-4" onClick={() => setPage('sessions')}>
+              View sessions and reports
+            </Button>
+          )}
           {phase !== 'idle' && (
             <div className="challenge-call-status mt-4" data-phase={phase} role="status">
               {phase === 'requesting' && <Loader2 className="animate-spin" aria-hidden="true" />}
