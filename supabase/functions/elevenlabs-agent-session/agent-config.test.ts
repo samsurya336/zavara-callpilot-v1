@@ -19,7 +19,7 @@ Deno.test('one-on-one agent uses the lead voice, call limit and signed-URL auth'
   assert.deepEqual(tts.supported_voices, [])
   assert.equal(conversation.max_duration_seconds, 300)
   assert.equal(config.platform_settings.auth.enable_auth, true)
-  assert.match(agent.first_message, /^Hi \{\{user_name\}\}, I'm Priya Shah, CFO/)
+  assert.match(agent.dynamic_variables.dynamic_variable_placeholders.opening_line, /^Hi \{\{user_name\}\}, I'm Priya Shah, CFO/)
   assert.equal(agent.disable_first_message_interruptions, true)
   assert.match(agent.prompt.prompt, /Needs to cut tooling spend by 15%/)
   assert.match(agent.prompt.prompt, /Too expensive; We already use spreadsheets/)
@@ -38,7 +38,7 @@ Deno.test('boardroom agent gives each extra stakeholder a labelled voice', () =>
   ])
   assert.match(agent.prompt.prompt, /Arjun Mehta speaks without any tag/)
   assert.match(agent.prompt.prompt, /<Arjun2>\.\.\.<\/Arjun2>/)
-  assert.match(agent.first_message, /Arjun Rao, our CTO, and Priya Shah, our CFO/)
+  assert.match(agent.dynamic_variables.dynamic_variable_placeholders.opening_line, /Arjun Rao, our CTO, and Priya Shah, our CFO/)
 })
 
 Deno.test('missing voice without a default is a configuration error', () => {

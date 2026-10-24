@@ -1,7 +1,12 @@
 import { type CallSessionStatus, type CallSpeaker, type ReportStatus, TABLES } from './calls.ts'
 import type { serviceClient } from './index.ts'
 import { buildReport, type ReportInput } from './report.ts'
-import { mapTranscript, type ProviderTurn } from './transcript.ts'
+import {
+  continuedTranscript,
+  mapTranscript,
+  type ProviderTurn,
+  type TranscriptTurn,
+} from './transcript.ts'
 
 type Db = ReturnType<typeof serviceClient>
 
@@ -28,13 +33,18 @@ export async function saveConversation(db: Db, conversation: ProviderConversatio
 
   const { metadata } = conversation
   const speakers = (session.metadata?.speakers ?? []) as CallSpeaker[]
+  const prefix = (session.metadata?.branchPrefix ?? []) as TranscriptTurn[]
+  const transcript = continuedTranscript(
+    prefix,
+    mapTranscript(conversation.transcript ?? [], speakers),
+  )
   const start = metadata?.start_time_unix_secs
   const duration = metadata?.call_duration_secs
   const status: CallSessionStatus = conversation.status === 'failed' ? 'FAILED' : 'COMPLETED'
   const { error: updateError } = await db
     .from(TABLES.callSessions)
     .update({
-      transcript: mapTranscript(conversation.transcript ?? [], speakers),
+      transcript,
       status,
       started_at: start ? new Date(start * 1000).toISOString() : null,
       ended_at: start && duration != null

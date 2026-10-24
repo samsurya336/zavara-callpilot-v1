@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useConversation } from '@elevenlabs/react'
-import { challengeRepository, type Challenge } from '../repositories'
+import { challengeRepository, type Challenge, type TimeMachineInput } from '../repositories'
 
 export type CallPhase = 'idle' | 'requesting' | 'connecting' | 'active' | 'ended' | 'error'
 
@@ -13,7 +13,7 @@ const SPEAKING_HOLD_MS = 800
  * counts down the challenge length and hangs up at the limit. Server bookkeeping (activate/end)
  * never hangs up a live call. Must render inside `ConversationProvider`.
  */
-export function useChallengeCall(challenge: Challenge) {
+export function useChallengeCall(challenge: Challenge, branch?: TimeMachineInput) {
   const [phase, setPhase] = useState<CallPhase>('idle')
   const [error, setError] = useState<string | null>(null)
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
@@ -94,7 +94,7 @@ export function useChallengeCall(challenge: Challenge) {
       const permission = await navigator.mediaDevices.getUserMedia({ audio: true })
       permission.getTracks().forEach((track) => track.stop())
       if (generation.current !== attempt) return
-      const session = await challengeRepository.startCall(challenge.id)
+      const session = await challengeRepository.startCall(challenge.id, branch)
       if (generation.current !== attempt) {
         await challengeRepository.endCall(session.callSessionId)
         return

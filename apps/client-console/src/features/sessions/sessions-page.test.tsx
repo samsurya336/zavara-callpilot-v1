@@ -4,7 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { SessionsPage } from './sessions-page'
 
-const mocks = vi.hoisted(() => ({ listSessions: vi.fn(), endCall: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  listSessions: vi.fn(),
+  endCall: vi.fn(),
+  openTimeMachineCall: vi.fn(),
+}))
+vi.mock('@/features/challenges/time-machine-store', () => ({
+  openTimeMachineCall: mocks.openTimeMachineCall,
+}))
 vi.mock('./repository', () => ({ listSessions: mocks.listSessions }))
 vi.mock('@/features/auth/hooks', () => ({
   useAuth: () => ({ session: { user: { id: 'owner' } } }),
@@ -74,18 +81,42 @@ beforeEach(() => {
   mocks.listSessions.mockResolvedValue([session])
   mocks.endCall.mockResolvedValue(undefined)
 })
-it('opens the saved coaching report and shows linked transcript evidence', async () => {
+it('opens Time Machine from an improvement timestamp and keeps transcript evidence', async () => {
   open()
   const user = userEvent.setup()
   await user.click(await screen.findByText('Budget challenge'))
   await user.click(screen.getByRole('tab', { name: 'Report' }))
   expect(screen.getByText('Partial feedback')).toBeInTheDocument()
   expect(screen.getByText('Ask about timing')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Open Time Machine at 0:10' }))
+  expect(mocks.openTimeMachineCall).toHaveBeenCalledWith({
+    parentSessionId: 'call',
+    branchFromTurnId: 'turn-1',
+  })
   await user.click(screen.getByText('View conversation evidence'))
+  expect(screen.getByText('View conversation evidence').closest('details')).toHaveAttribute('open')
   expect(screen.getByText('View conversation evidence').closest('details')).toHaveTextContent(
     'What is your budget?',
   )
   expect(mocks.listSessions).toHaveBeenCalled()
+})
+
+it('shows missing timestamps without inventing a moment at zero', async () => {
+  mocks.listSessions.mockResolvedValue([
+    {
+      ...session,
+      transcript: [{ ...session.transcript[0], timeInCallSecs: null }],
+    },
+  ])
+  open()
+  await userEvent.click(await screen.findByText('Budget challenge'))
+  await userEvent.click(screen.getByRole('tab', { name: 'Report' }))
+  expect(
+    screen.getByRole('button', { name: 'Open Time Machine at Time unavailable' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.queryByRole('button', { name: 'Open Time Machine at 0:00' }),
+  ).not.toBeInTheDocument()
 })
 it('lets a failed report be retried without creating another call', async () => {
   mocks.listSessions.mockResolvedValue([{ ...session, report: null, report_status: 'FAILED' }])
@@ -95,4 +126,79 @@ it('lets a failed report be retried without creating another call', async () => 
   await user.click(screen.getByRole('tab', { name: 'Report' }))
   await user.click(screen.getByRole('button', { name: 'Check and retry report' }))
   expect(mocks.endCall).toHaveBeenCalledWith('call', expect.anything())
+})
+
+it('triggers Time Machine with the saved session and chosen user answer', async () => {
+  mocks.listSessions.mockResolvedValue([
+    {
+      ...session,
+      report: {
+        ...report,
+        priorityImprovement: { ...report.priorityImprovement, retryTurnId: 'turn-3' },
+      },
+      transcript: [
+        { id: 'turn-0', speaker: 'agent', text: 'Buyer question', timeInCallSecs: 0 },
+        ...session.transcript,
+        { id: 'turn-3', speaker: 'user', text: 'Another answer', timeInCallSecs: 20 },
+      ],
+    },
+  ])
+  open()
+  const user = userEvent.setup()
+  await user.click(await screen.findByText('Budget challenge'))
+  await user.click(screen.getByRole('tab', { name: 'Report' }))
+  await user.click(screen.getByRole('button', { name: /Try a different answer · 0:20/ }))
+  expect(mocks.openTimeMachineCall).toHaveBeenCalledWith({
+    parentSessionId: 'call',
+    branchFromTurnId: 'turn-3',
+  })
+})
+
+it('connects timestamps in more improvements to Time Machine', async () => {
+  mocks.listSessions.mockResolvedValue([
+    {
+      ...session,
+      report: {
+        ...report,
+        priorityImprovement: null,
+        moreImprovements: [report.priorityImprovement],
+      },
+    },
+  ])
+  open()
+  const user = userEvent.setup()
+  await user.click(await screen.findByText('Budget challenge'))
+  await user.click(screen.getByRole('tab', { name: 'Report' }))
+  await user.click(screen.getByText('More improvements'))
+  await user.click(screen.getByRole('button', { name: 'Open Time Machine at 0:10' }))
+  expect(mocks.openTimeMachineCall).toHaveBeenCalledWith({
+    parentSessionId: 'call',
+    branchFromTurnId: 'turn-1',
+  })
+})
+
+it('does not branch from buyer evidence or an invalid retry answer', async () => {
+  mocks.listSessions.mockResolvedValue([
+    {
+      ...session,
+      report: {
+        ...report,
+        priorityImprovement: {
+          ...report.priorityImprovement,
+          turnIds: ['buyer'],
+          retryTurnId: 'buyer',
+        },
+      },
+      transcript: [{ id: 'buyer', speaker: 'agent', text: 'Buyer question', timeInCallSecs: 5 }],
+    },
+  ])
+  open()
+  const user = userEvent.setup()
+  await user.click(await screen.findByText('Budget challenge'))
+  await user.click(screen.getByRole('tab', { name: 'Report' }))
+  expect(screen.getByText('0:05 · Buyer')).toBeInTheDocument()
+  expect(
+    screen.queryByRole('button', { name: /Open Time Machine|Try a different answer/ }),
+  ).not.toBeInTheDocument()
+  expect(mocks.openTimeMachineCall).not.toHaveBeenCalled()
 })

@@ -121,16 +121,23 @@ export function buildAgentConfig(
     tags: ['callpilot'],
     conversation_config: {
       agent: {
-        first_message: firstMessage(challenge, lead, others),
+        first_message: '{{opening_line}}',
         // Speaker echo and room noise were cutting the greeting off in its first second.
         disable_first_message_interruptions: true,
         language: BASE_AGENT.language,
         prompt: {
-          prompt: personaPrompt(challenge, participants, labels),
+          prompt: personaPrompt(challenge, participants, labels) +
+            '\n\n# Conversation starting point\n{{resume_context}}',
           llm: BASE_AGENT.llm,
           temperature: BASE_AGENT.temperature,
         },
-        dynamic_variables: { dynamic_variable_placeholders: { user_name: 'there' } },
+        dynamic_variables: {
+          dynamic_variable_placeholders: {
+            user_name: 'there',
+            opening_line: firstMessage(challenge, lead, others),
+            resume_context: 'This is a new meeting. Begin normally.',
+          },
+        },
       },
       tts: {
         voice_id: voiceOf(lead),

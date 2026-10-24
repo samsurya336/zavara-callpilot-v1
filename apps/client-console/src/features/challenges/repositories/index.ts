@@ -49,6 +49,21 @@ export interface GenerateChallengeInput {
   goal: string
 }
 
+export interface TimeMachineInput {
+  parentSessionId: string
+  branchFromTurnId: string
+}
+
+export interface TimeMachineContext {
+  challenge: Challenge
+  transcript: Array<{
+    id: string
+    speaker: 'user' | 'agent'
+    participantId: string | null
+    text: string
+  }>
+}
+
 export interface CallSession {
   callSessionId: string
   conversationToken: string
@@ -177,6 +192,15 @@ export const challengeRepository = {
     return data
   },
 
+  async timeMachineContext(input: TimeMachineInput) {
+    const { data, error } = await supabase.functions.invoke<TimeMachineContext>(
+      'elevenlabs-agent-session',
+      { body: { action: 'branch-context', ...input } },
+    )
+    if (error) throw await functionError(error, 'Could not load the previous conversation.')
+    if (!data) throw new Error('The saved conversation is unavailable.')
+    return data
+  },
   async retryGeneration(challengeId: string) {
     console.info('[generate-challenges] retry', challengeId)
     const { error } = await supabase.functions.invoke('generate-challenges', {
@@ -189,11 +213,10 @@ export const challengeRepository = {
         'generate-challenges',
       )
   },
-
-  async startCall(challengeId: string) {
+  async startCall(challengeId: string, branch?: TimeMachineInput) {
     const { data, error } = await supabase.functions.invoke<CallSession>(
       'elevenlabs-agent-session',
-      { body: { challengeId, connectionType: 'webrtc' } },
+      { body: { challengeId, connectionType: 'webrtc', ...branch } },
     )
     if (error) throw await functionError(error, 'Could not prepare the call. Try again.')
     if (!data?.conversationToken || !data.callSessionId) {

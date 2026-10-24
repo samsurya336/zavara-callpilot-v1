@@ -1,3 +1,4 @@
+import { branchOpeningLine, branchPreview, loadBranch, resumeContext } from './branch.ts'
 import {
   authenticate,
   corsHeaders,
@@ -87,7 +88,30 @@ Deno.serve(async (request) => {
       return jsonResponse({ ended: true })
     }
 
-    const challengeId = body?.challengeId
+    const db = serviceClient()
+    const branching = body?.parentSessionId !== undefined || body?.branchFromTurnId !== undefined
+    if (
+      branching && (
+        typeof body.parentSessionId !== 'string' || !UUID.test(body.parentSessionId) ||
+        typeof body.branchFromTurnId !== 'string' || !body.branchFromTurnId.trim()
+      )
+    ) {
+      return jsonResponse(
+        { error: 'parentSessionId and branchFromTurnId are required together' },
+        400,
+      )
+    }
+    const branch = branching
+      ? await loadBranch(db, user.id, body.parentSessionId, body.branchFromTurnId)
+      : null
+    if (branching && !branch) {
+      return jsonResponse({ error: 'Saved call or selected user answer is unavailable' }, 404)
+    }
+    if (body?.action === 'branch-context') {
+      if (!branch) return jsonResponse({ error: 'A saved call and user answer are required' }, 400)
+      return jsonResponse(branchPreview(branch))
+    }
+    const challengeId = branch?.challengeId ?? body?.challengeId
     if (typeof challengeId !== 'string' || !UUID.test(challengeId)) {
       return jsonResponse({ error: 'challengeId must be a UUID' }, 400)
     }
@@ -95,12 +119,11 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: 'mode must be ASSIST or BATTLE' }, 400)
     }
 
-    const db = serviceClient()
-    const loaded = await loadChallenge(db, challengeId)
+    const loaded = branch ?? await loadChallenge(db, challengeId)
     const challenge = loaded?.challenge
     if (
-      !loaded || !challenge?.is_active ||
-      (challenge.source === 'KNOWLEDGE_BASE' && challenge.created_by !== user.id)
+      !loaded || !challenge || (!branch && (!challenge.is_active ||
+        (challenge.source === 'KNOWLEDGE_BASE' && challenge.created_by !== user.id)))
     ) {
       return jsonResponse({ error: 'Challenge not found' }, 404)
     }
@@ -117,7 +140,7 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: 'connectionType must be webrtc or websocket' }, 400)
     }
     const credentials = body.connectionType === 'webrtc' ? getConversationToken : getSignedUrl
-    const mode: CallMode = body.mode ?? 'BATTLE'
+    const mode: CallMode = branch?.mode ?? body.mode ?? 'BATTLE'
 
     // Task 11 guard: check the account allowance and event budget here, before billable work.
 
@@ -127,14 +150,20 @@ Deno.serve(async (request) => {
       Deno.env.get('ELEVENLABS_DEFAULT_VOICE_ID'),
     )
     const hash = await configHash(config)
-    let agent = await ensureAgent(db, challenge, config, hash)
+    // Saved snapshots deliberately omit the agent cache. Compare against today's reference
+    // while building the persona from the saved challenge and stakeholders.
+    const current = branch ? await loadChallenge(db, challengeId) : null
+    const agentChallenge = branch
+      ? { ...challenge, configs: current?.challenge.configs ?? null }
+      : challenge
+    let agent = await ensureAgent(db, agentChallenge, config, hash)
     let signed
     try {
       signed = await credentials(agent.agentId)
     } catch (error) {
       if (!(error instanceof ElevenLabsError && error.status === 404)) throw error
       // The cached agent was deleted on ElevenLabs; replace it.
-      agent = await createAndStoreAgent(db, challenge, config, hash, agent.agentId)
+      agent = await createAndStoreAgent(db, agentChallenge, config, hash, agent.agentId)
       signed = await credentials(agent.agentId)
     }
     if (!signed.conversationId) {
@@ -149,11 +178,14 @@ Deno.serve(async (request) => {
       challengeId,
       mode,
       providerSessionId: signed.conversationId,
+      ...(branch &&
+        { parentSessionId: body.parentSessionId, branchFromTurnId: body.branchFromTurnId }),
       metadata: {
         snapshot: { challenge: challengeSnapshot, participants },
         speakers: callSpeakers(participants),
         agentId: agent.agentId,
         configHash: agent.configHash,
+        ...(branch && { branchPrefix: branch.prefix }),
       },
     })
     if (!callSessionId) {
@@ -173,7 +205,17 @@ Deno.serve(async (request) => {
         durationMinutes: challenge.duration_minutes,
       },
       participants: publicParticipants(participants),
-      dynamicVariables: { user_name: user.user_metadata?.name || 'there' },
+      dynamicVariables: {
+        user_name: user.user_metadata?.name || 'there',
+        opening_line: branch
+          ? branchOpeningLine(branch.prefix, participants)
+          : config.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders
+            .opening_line
+            .replace('{{user_name}}', user.user_metadata?.name || 'there'),
+        resume_context: branch
+          ? resumeContext(branch.prefix, participants)
+          : 'This is a new meeting. Begin normally.',
+      },
     })
   } catch (error) {
     if (

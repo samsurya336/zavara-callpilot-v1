@@ -19,6 +19,11 @@ export interface TranscriptTurn {
 
 const TAGGED_SEGMENT = /<([A-Za-z0-9]+)>([\s\S]*?)<\/\1>/g
 
+// Rebuild from the immutable prefix each time, so webhook retries cannot duplicate history.
+export function continuedTranscript(prefix: TranscriptTurn[], current: TranscriptTurn[]) {
+  return [...prefix, ...current].map((turn, order) => ({ ...turn, id: `turn-${order}`, order }))
+}
+
 // Multi-voice replies wrap non-lead stakeholders in <Label>...</Label>; untagged text is the lead.
 // A reply that breaks the one-speaker rule is split into one turn per speaker.
 export function mapTranscript(turns: ProviderTurn[], speakers: CallSpeaker[]): TranscriptTurn[] {

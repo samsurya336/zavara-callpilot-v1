@@ -36,6 +36,12 @@ beforeEach(() => {
   })
 })
 describe('challenge voice call', () => {
+  it('passes the source session and selected answer to the call API', async () => {
+    const branch = { parentSessionId: 'previous-session', branchFromTurnId: 'turn-3' }
+    const { result } = renderHook(() => useChallengeCall(challenge, branch))
+    await act(() => result.current.start())
+    expect(mocks.startCall).toHaveBeenCalledWith(challenge.id, branch)
+  })
   it('uses a private WebRTC token and releases the microphone permission probe', async () => {
     const { result } = renderHook(() => useChallengeCall(challenge))
     await act(() => result.current.start())

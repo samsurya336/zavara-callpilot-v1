@@ -16,6 +16,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks'
 import { challengeRepository } from '@/features/challenges/repositories'
+import { openTimeMachineCall } from '@/features/challenges/time-machine-store'
 import { listSessions, type SavedTurn, type SessionRecord } from './repository'
 import type { CallReport, ReportImprovement } from './types'
 
@@ -33,8 +34,10 @@ const date = (value: string | null) =>
         new Date(value),
       )
     : 'Not recorded'
-const turnTime = (seconds: number) =>
-  `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+const turnTime = (seconds: number | null) => {
+  if (seconds === null || !Number.isFinite(seconds) || seconds < 0) return 'Time unavailable'
+  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+}
 
 function Status({ value, report = false }: { value: string; report?: boolean }) {
   return (
@@ -59,6 +62,9 @@ function Improvement({
   onTimeMachine?: (turnId: string) => void
 }) {
   const evidence = turns.filter((turn) => item.turnIds.includes(turn.id))
+  const retryTurn =
+    turns.find((turn) => turn.id === item.retryTurnId && turn.speaker === 'user') ??
+    evidence.find((turn) => turn.speaker === 'user')
   return (
     <article className="report-focus-card">
       <header>
@@ -70,6 +76,29 @@ function Improvement({
           <h3>{item.title}</h3>
         </div>
       </header>
+      {evidence.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">The moment:</span>
+          {evidence.map((turn) =>
+            turn.speaker === 'user' && onTimeMachine ? (
+              <Button
+                key={turn.id}
+                variant="secondary"
+                size="sm"
+                aria-label={`Open Time Machine at ${turnTime(turn.timeInCallSecs)}`}
+                onClick={() => onTimeMachine(turn.id)}
+              >
+                <RotateCcw size={14} />
+                {turnTime(turn.timeInCallSecs)} · You
+              </Button>
+            ) : (
+              <span key={turn.id} className="text-sm text-muted-foreground">
+                {turnTime(turn.timeInCallSecs)} · {turn.speaker === 'user' ? 'You' : 'Buyer'}
+              </span>
+            ),
+          )}
+        </div>
+      )}
       {item.quote && <blockquote>“{item.quote}”</blockquote>}
       <div className="report-coaching-grid">
         <div>
@@ -86,10 +115,10 @@ function Improvement({
           {item.exampleResponse && <strong>“{item.exampleResponse}”</strong>}
         </div>
       </div>
-      {item.retryTurnId && onTimeMachine && (
-        <Button className="time-machine-button" onClick={() => onTimeMachine(item.retryTurnId!)}>
+      {retryTurn && onTimeMachine && (
+        <Button className="time-machine-button" onClick={() => onTimeMachine(retryTurn.id)}>
           <RotateCcw size={16} />
-          Try a different answer
+          Try a different answer · {turnTime(retryTurn.timeInCallSecs)}
           <ArrowRight size={16} />
         </Button>
       )}
@@ -98,7 +127,10 @@ function Improvement({
           <summary>View conversation evidence</summary>
           {evidence.map((turn) => (
             <p key={turn.id}>
-              <b>{turn.speaker === 'user' ? 'You' : 'Buyer'}:</b> {turn.text}
+              <b>
+                {turnTime(turn.timeInCallSecs)} · {turn.speaker === 'user' ? 'You' : 'Buyer'}:
+              </b>{' '}
+              {turn.text}
             </p>
           ))}
         </details>
@@ -277,7 +309,12 @@ export function ReportView({
                 More improvements <span>{report.moreImprovements.length}</span>
               </summary>
               {report.moreImprovements.map((item) => (
-                <Improvement key={item.title} item={item} turns={turns} />
+                <Improvement
+                  key={item.title}
+                  item={item}
+                  turns={turns}
+                  onTimeMachine={onTimeMachine}
+                />
               ))}
             </details>
           )}
@@ -464,13 +501,7 @@ function Overview({ item, all }: { item: SessionRecord; all: SessionRecord[] }) 
   )
 }
 
-function Transcript({
-  item,
-  highlightedTurnId,
-}: {
-  item: SessionRecord
-  highlightedTurnId?: string
-}) {
+function Transcript({ item }: { item: SessionRecord }) {
   const participants = new Map(item.participants.map((person) => [person.id, person.name]))
   if (!item.transcript.length)
     return (
@@ -500,7 +531,6 @@ function Transcript({
                 key={turn.id}
                 id={`transcript-${turn.id}`}
                 data-speaker={isUser ? 'user' : 'agent'}
-                data-highlighted={turn.id === highlightedTurnId || undefined}
               >
                 <div>
                   <strong>{speaker}</strong>
@@ -529,16 +559,9 @@ function SessionDetail({
   retrying: boolean
 }) {
   const [tab, setTab] = useState<DetailTab>('overview')
-  const [highlightedTurnId, setHighlightedTurnId] = useState<string>()
   const openTimeMachine = (turnId: string) => {
-    setHighlightedTurnId(turnId)
-    setTab('transcript')
-    window.setTimeout(() => {
-      document.getElementById(`transcript-${turnId}`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    })
+    if (!item.transcript.some((turn) => turn.id === turnId && turn.speaker === 'user')) return
+    openTimeMachineCall({ parentSessionId: item.id, branchFromTurnId: turnId })
   }
   return (
     <div className="session-detail-page animate-fade-in">
@@ -595,7 +618,7 @@ function SessionDetail({
               </Button>
             </div>
           ))}
-        {tab === 'transcript' && <Transcript item={item} highlightedTurnId={highlightedTurnId} />}
+        {tab === 'transcript' && <Transcript item={item} />}
       </div>
     </div>
   )
@@ -695,6 +718,7 @@ export function SessionsPage() {
   if (current)
     return (
       <SessionDetail
+        key={current.id}
         item={current}
         all={sessions.data ?? []}
         onBack={() => setSelected(null)}

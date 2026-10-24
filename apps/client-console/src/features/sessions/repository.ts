@@ -7,7 +7,7 @@ export interface SavedTurn {
   text: string
   order: number
   participantId: string | null
-  timeInCallSecs: number
+  timeInCallSecs: number | null
 }
 
 export interface SessionParticipant {
