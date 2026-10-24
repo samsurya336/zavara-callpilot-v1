@@ -164,8 +164,7 @@ def head(title, desc, keywords=''):
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0b0c0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#0b0c0f">
   <title>{title}</title>
   <meta name="description" content="{desc}">
 {kw}  <meta name="author" content="Zavara">
@@ -179,11 +178,13 @@ def head(title, desc, keywords=''):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=2">
   <script>
     (function () {{
       document.documentElement.classList.add('js');
-      try {{ var t = localStorage.getItem('cp-theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); }} catch (e) {{}}
+      var theme = 'dark';
+      try {{ if (localStorage.getItem('cp-theme-v2') === 'light') theme = 'light'; }} catch (e) {{}}
+      document.documentElement.setAttribute('data-theme', theme);
     }})();
   </script>
 </head>
@@ -218,11 +219,11 @@ def header(page):
         </ul>
       </nav>
       <div class="header-actions">
-        <button type="button" class="icon-btn theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">
+        <button type="button" class="icon-btn theme-toggle" aria-label="Switch to light theme" aria-pressed="true">
           <svg class="icon i-moon"><use href="#i-moon"/></svg>
           <svg class="icon i-sun"><use href="#i-sun"/></svg>
         </button>
-        <a href="{cta}" class="btn btn-primary header-cta">Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
+        <a href="{cta}" class="btn btn-primary header-cta" data-app-link>Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
         <button type="button" class="icon-btn menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
           <svg class="icon"><use href="#i-menu"/></svg>
         </button>
@@ -234,7 +235,7 @@ def header(page):
     <ul class="nav-list">
 {nav_list(page,'      ')}
     </ul>
-    <a href="{cta}" class="btn btn-primary">Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
+    <a href="{cta}" class="btn btn-primary" data-app-link>Get started <svg class="icon icon-sm icon-arrow"><use href="#i-arrow"/></svg></a>
   </nav>
 '''
 
@@ -262,9 +263,10 @@ FOOTER = '''
     </div>
   </footer>
   <button type="button" class="icon-btn to-top" aria-label="Back to top"><svg class="icon"><use href="#i-arrow-up"/></svg></button>
-  <script src="js/main.js" defer></script>
+  <script src="js/config.js?v=2"></script>
+  <script src="js/main.js?v=2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/motion@12.23.12/dist/motion.min.js" defer></script>
-  <script src="js/motion-fx.js" defer></script>
+  <script src="js/motion-fx.js?v=2" defer></script>
 </body>
 </html>
 '''
@@ -693,9 +695,11 @@ INDEX = f'''
           {CTA_ART}
           <p class="eyebrow">Early access</p>
           <h2 id="start-heading">Ready to practise before it really counts?</h2>
-          <p>CallPilot AI is being prepared for early users in India. Practice accounts, demos and the waitlist are not yet open through this page. The sign-up link will appear here the moment they are.</p>
+          <p data-app-pending>CallPilot AI is being prepared for early users in India. Practice accounts, demos and the waitlist are not yet open through this page. The sign-up link will appear here the moment they are.</p>
+          <p data-app-ready hidden>Create your account, pick an Open Challenge and start your first practice call in minutes.</p>
           <div class="btn-row">
-            <a href="#how-it-works" class="btn btn-primary btn-lg">Review the practice loop {ic('i-arrow','icon icon-sm icon-arrow')}</a>
+            <a href="#get-started" class="btn btn-primary btn-lg" data-app-link data-app-ready hidden>Get started {ic('i-arrow','icon icon-sm icon-arrow')}</a>
+            <a href="#how-it-works" class="btn btn-primary btn-lg" data-app-pending>Review the practice loop {ic('i-arrow','icon icon-sm icon-arrow')}</a>
             <a href="roadmap.html" class="btn btn-secondary btn-lg">Read the roadmap</a>
           </div>
           <p class="fine">No pricing, testimonials or performance figures are published yet. Planned features are clearly marked.</p>

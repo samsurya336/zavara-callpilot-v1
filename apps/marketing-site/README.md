@@ -35,6 +35,7 @@ when they are blocked (see below).
 | `roadmap.html`              | Available now versus Coming Soon                                        |
 | `404.html`                  | Not-found page                                                          |
 | `css/styles.css`            | Meridian tokens, light and dark themes, layout, components, motion      |
+| `js/config.js`              | Deploy-time settings: the application URL for "Get started" (see below) |
 | `js/main.js`                | Theme toggle, mobile drawer, scroll reveal, live demo, persona cards, Assist/Battle switch, Time Machine demo, FAQ accordion, back to top |
 | `js/motion-fx.js`           | Optional Motion (motion.dev) enhancements: scroll progress, icon springs, travelling flow dot, pointer-tracking avatar eyes, hover and press springs, Time Machine branch diagram |
 | `assets/logo-mark.svg`      | Favicon and social image: three slanted bars (the product mark)         |
@@ -65,10 +66,11 @@ Tokens follow the console design guide: Space Grotesk headings, Instrument Sans 
 light neutral palette with the page gradient, 20px radius scale, pill controls with 44px
 targets, glass surfaces, Meridian easing, and status colours used only with a word label.
 
-**Theme.** Light is the default. The dark palette applies when the OS prefers dark, and the
-header toggle sets `data-theme="light"` or `"dark"` on the root element, remembered in
-`localStorage` under `cp-theme`. A tiny inline script in `<head>` applies the stored choice
-before first paint so there is no flash.
+**Theme.** Dark is the default for every visitor, regardless of OS setting. The header toggle
+switches to light by setting `data-theme="light"` on the root element, remembered in
+`localStorage` under `cp-theme-v2`, so the choice sticks across visits. Bump the `?v=` query on the
+stylesheet and script links in `tools/build_pages.py` when shipping changes, so browsers do not keep a cached copy. A tiny inline script in
+`<head>` applies the stored choice before first paint so there is no flash.
 
 **Fonts** load from Google Fonts with system fallbacks. To self-host, place the font files in
 `assets/fonts/` and swap the `<link>` for `@font-face` rules.
@@ -101,11 +103,26 @@ the markup, not in CSS.
 
 All interactive demos use fictional people, companies and outcomes and say so on the page.
 
+## Linking "Get started" to the application
+
+The application URL lives in one place, `js/config.js`:
+
+```js
+window.CALLPILOT_CONFIG = {
+  appUrl: 'https://app.example.com'   // sign-in / sign-up address of the CallPilot console
+};
+```
+
+When `appUrl` is set, every "Get started" button (header and mobile drawer on all pages) links
+there, and the final "Early access" panel swaps its "not yet open" copy for a "Get started"
+button. When it is empty the buttons fall back to the in-page early-access section, so the site
+never shows a dead link. No other file needs editing.
+
 ## Content rules
 
-- Calls to action link only to in-page sections and `roadmap.html`. No application URL, demo
-  link, waitlist endpoint or contact address exists yet, so none is invented. The final panel
-  says sign-up is not yet open; add the real link there when it exists.
+- Apart from the configured application URL, calls to action link only to in-page sections and
+  `roadmap.html`. No demo link, waitlist endpoint or contact address exists yet, so none is
+  invented.
 - No forms, since a form without a backend would appear functional when it is not.
 - Simulated Deals, team analytics, live-call assistance, integrations and subscriptions are
   marked **Coming Soon**, following the MVP scope in `ABOUT-PROJECT.business.md` and the BRD.
@@ -114,7 +131,7 @@ All interactive demos use fictional people, companies and outcomes and say so on
 ## Validation
 
 ```sh
-node --check js/main.js js/motion-fx.js
+node --check js/config.js js/main.js js/motion-fx.js
 grep -rn 'href="#' *.html | grep -v '#i-'   # every anchor should match an id
 ```
 
@@ -131,4 +148,4 @@ production URL before adding canonical, sitemap, robots or Open Graph URLs.
 
 This site is independent of [`../client-console`](../client-console) (the Vite and React
 application) and shares no code or dependencies with it. It links to no application routes
-today; when the console goes live, the sign-up call to action is the one place to add that URL.
+until `appUrl` in `js/config.js` is set; that is the one place to add the console's address.

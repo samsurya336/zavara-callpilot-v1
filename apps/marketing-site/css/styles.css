@@ -2,8 +2,10 @@
    Layout: quiet Meridian canvas, one bold moment (the live practice demo), content in a 1280px container.
    Tokens come from apps/marketing-site/src/styles/theme.css. */
 
+/* Dark is the default theme. Light is applied only when the visitor chooses it
+   (data-theme="light", remembered in localStorage under cp-theme). */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --radius: 20px;
   --radius-xs: 8px;
   --radius-sm: 12px;
@@ -14,60 +16,12 @@
     "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-heading:
     "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --background: #f4f5f8;
-  --background-gradient: linear-gradient(180deg, #f8f9fb, #eef0f3);
-  --foreground: #0e1013;
-  --primary: #101317;
-  --primary-foreground: #ffffff;
-  --secondary: rgb(14 16 19 / 5%);
-  --muted-foreground: rgb(14 16 19 / 65%);
-  --border: rgb(14 16 19 / 8%);
-  --input: rgb(14 16 19 / 14%);
-  --ring: rgb(14 16 19 / 50%);
-  --text-tertiary: rgb(14 16 19 / 60%);
   --status-normal: oklch(0.68 0.16 158);
   --status-borderline: oklch(0.74 0.14 78);
   --status-high: oklch(0.62 0.19 26);
   --status-low: oklch(0.62 0.13 252);
-  --glass: rgb(255 255 255 / 66%);
-  --glass-border: rgb(255 255 255 / 90%);
-  --glass-strong: rgb(255 255 255 / 78%);
-  --sheet: rgb(250 250 252 / 96%);
-  --shadow-card: 0 1px 2px rgb(16 18 20 / 4%), 0 12px 32px rgb(16 18 20 / 7%);
-  --shadow-float: 0 8px 30px rgb(0 0 0 / 10%);
-  --shadow-cta: 0 4px 12px rgb(0 0 0 / 12%);
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --header-h: 72px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --background: #0b0c0f;
-    --background-gradient: radial-gradient(
-      130% 55% at 50% -8%,
-      #16202e,
-      #0b0c0f 62%
-    );
-    --foreground: #f3f5f7;
-    --primary: #f3f5f7;
-    --primary-foreground: #0e1013;
-    --secondary: rgb(255 255 255 / 7%);
-    --muted-foreground: rgb(243 245 247 / 68%);
-    --border: rgb(255 255 255 / 8%);
-    --input: rgb(255 255 255 / 16%);
-    --ring: rgb(243 245 247 / 55%);
-    --text-tertiary: rgb(243 245 247 / 62%);
-    --glass: rgb(255 255 255 / 5.5%);
-    --glass-border: rgb(255 255 255 / 9%);
-    --glass-strong: rgb(24 26 31 / 72%);
-    --sheet: rgb(24 26 30 / 96%);
-    --shadow-card: 0 16px 40px rgb(0 0 0 / 24%);
-    --shadow-float: 0 8px 30px rgb(0 0 0 / 30%);
-    --shadow-cta: 0 4px 12px rgb(0 0 0 / 25%);
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
   --background: #0b0c0f;
   --background-gradient: radial-gradient(
     130% 55% at 50% -8%,
@@ -91,20 +45,35 @@
   --shadow-float: 0 8px 30px rgb(0 0 0 / 30%);
   --shadow-cta: 0 4px 12px rgb(0 0 0 / 25%);
 }
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #f4f5f8;
+  --background-gradient: linear-gradient(180deg, #f8f9fb, #eef0f3);
+  --foreground: #0e1013;
+  --primary: #101317;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(14 16 19 / 5%);
+  --muted-foreground: rgb(14 16 19 / 65%);
+  --border: rgb(14 16 19 / 8%);
+  --input: rgb(14 16 19 / 14%);
+  --ring: rgb(14 16 19 / 50%);
+  --text-tertiary: rgb(14 16 19 / 60%);
+  --glass: rgb(255 255 255 / 66%);
+  --glass-border: rgb(255 255 255 / 90%);
+  --glass-strong: rgb(255 255 255 / 78%);
+  --sheet: rgb(250 250 252 / 96%);
+  --shadow-card: 0 1px 2px rgb(16 18 20 / 4%), 0 12px 32px rgb(16 18 20 / 7%);
+  --shadow-float: 0 8px 30px rgb(0 0 0 / 10%);
+  --shadow-cta: 0 4px 12px rgb(0 0 0 / 12%);
+}
 @supports not (backdrop-filter: blur(1px)) {
   :root {
-    --glass: rgb(255 255 255 / 96%);
-    --glass-strong: #f8f9fb;
-  }
-  :root[data-theme="dark"] {
     --glass: #1a1c21;
     --glass-strong: #181a1f;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --glass: #1a1c21;
-      --glass-strong: #181a1f;
-    }
+  :root[data-theme="light"] {
+    --glass: rgb(255 255 255 / 96%);
+    --glass-strong: #f8f9fb;
   }
 }
 
@@ -393,24 +362,16 @@ button {
   transform: scale(0.94);
 }
 .theme-toggle .i-moon {
-  display: block;
+  display: none;
 }
 .theme-toggle .i-sun {
-  display: none;
-}
-:root[data-theme="dark"] .theme-toggle .i-moon {
-  display: none;
-}
-:root[data-theme="dark"] .theme-toggle .i-sun {
   display: block;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .i-moon {
-    display: none;
-  }
-  :root:not([data-theme="light"]) .theme-toggle .i-sun {
-    display: block;
-  }
+:root[data-theme="light"] .theme-toggle .i-moon {
+  display: block;
+}
+:root[data-theme="light"] .theme-toggle .i-sun {
+  display: none;
 }
 .nav-desktop,
 .site-header .header-cta {

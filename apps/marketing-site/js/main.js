@@ -5,14 +5,15 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Theme toggle (light / dark, remembered per browser) ---------- */
+  /* Dark is the default. Light applies only when the visitor picks it; the choice is kept in localStorage. */
+  var themeColorMeta = document.querySelector('meta[name="theme-color"]');
   function currentTheme() {
-    var explicit = root.getAttribute('data-theme');
-    if (explicit) return explicit;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   }
   function setTheme(theme) {
     root.setAttribute('data-theme', theme);
-    try { localStorage.setItem('cp-theme', theme); } catch (e) { /* storage unavailable */ }
+    if (themeColorMeta) themeColorMeta.setAttribute('content', theme === 'dark' ? '#0b0c0f' : '#f4f5f8');
+    try { localStorage.setItem('cp-theme-v2', theme); } catch (e) { /* storage unavailable */ }
     document.querySelectorAll('.theme-toggle').forEach(function (btn) {
       btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
       btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
@@ -23,6 +24,17 @@
     btn.setAttribute('aria-label', currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
     btn.addEventListener('click', function () { setTheme(currentTheme() === 'dark' ? 'light' : 'dark'); });
   });
+
+  /* ---------- "Get started" links: point at the application when js/config.js has its URL ---------- */
+  var appUrl = (window.CALLPILOT_CONFIG && window.CALLPILOT_CONFIG.appUrl || '').trim();
+  if (appUrl) {
+    document.querySelectorAll('[data-app-link]').forEach(function (a) {
+      a.setAttribute('href', appUrl);
+      a.setAttribute('rel', 'noopener');
+    });
+    document.querySelectorAll('[data-app-pending]').forEach(function (el) { el.hidden = true; });
+    document.querySelectorAll('[data-app-ready]').forEach(function (el) { el.hidden = false; });
+  }
 
   /* ---------- Header: shadow on scroll, mobile drawer ---------- */
   var header = document.querySelector('.site-header');
