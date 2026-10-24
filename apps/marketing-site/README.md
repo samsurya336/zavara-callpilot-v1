@@ -176,6 +176,9 @@ start on its own. Pushes to the tracked branch redeploy automatically.
 Render serves `404.html` for unknown paths without extra configuration. The Blueprint also sets
 long cache headers for `css/`, `js/` and `assets/`; the `?v=` query on the asset links in
 `tools/build_pages.py` is what busts that cache, so bump it when shipping changes to those files.
+`js/config.js` is the exception: the build stamps its script tag with a hash of its content and
+the Blueprint excludes it from long caching, so a changed `APP_URL` reaches browsers on the next
+deploy without any manual step.
 
 ### Other hosts
 

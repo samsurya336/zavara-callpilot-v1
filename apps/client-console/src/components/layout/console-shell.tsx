@@ -101,14 +101,14 @@ function SidebarContent({
           icon={Swords}
           onNavigate={onNavigate}
         />
-        <NavigationItem page="clients" label="Clients" icon={Building2} onNavigate={onNavigate} />
+        {/* <NavigationItem page="clients" label="Clients" icon={Building2} onNavigate={onNavigate} /> */}
         <NavigationItem
           page="sessions"
           label="My Sessions"
           icon={History}
           onNavigate={onNavigate}
         />
-        <Separator className="my-5" />
+        {/* <Separator className="my-5" />
         {[
           { label: 'Live Copilot', icon: Radio },
           { label: 'Integrations', icon: Plug },
@@ -124,7 +124,7 @@ function SidebarContent({
             <span className="nav-label flex-1">{label}</span>
             <span className="nav-label text-[10px]">Soon</span>
           </button>
-        ))}
+        ))} */}
       </nav>
       <div className="sidebar-footer">
         <NavigationItem page="settings" label="Settings" icon={Settings2} onNavigate={onNavigate} />
@@ -277,12 +277,12 @@ export function ConsoleShell({
               <span className="truncate text-sm font-medium">{pageTitles[page]}</span>
             </div>
             <div className="topbar-actions flex shrink-0 items-center gap-3">
-              <Badge
+              {/* <Badge
                 variant="secondary"
                 className="hidden rounded-full px-3 py-1.5 text-xs sm:flex"
               >
                 Practice World
-              </Badge>
+              </Badge> */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
