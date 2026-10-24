@@ -158,7 +158,8 @@ back to the in-page early-access section.
 
 The repository root has a [`render.yaml`](../../render.yaml) Blueprint, so the fastest route is
 **New + > Blueprint**, select this repository, and Render creates a static site named
-`callpilot-marketing` with these settings. To set it up by hand instead, choose
+`callpilot-marketing` with these settings, alongside the `callpilot-console` service for the
+client console. To set it up by hand instead, choose
 **New + > Static Site** and enter:
 
 | Setting           | Value                 |
