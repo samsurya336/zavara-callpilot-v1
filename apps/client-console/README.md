@@ -144,3 +144,33 @@ Node/pnpm versions, `corepack pnpm install --frozen-lockfile`, `corepack pnpm bu
 `dist/` as the output directory. Configure the frontend host's SPA fallback to serve
 `index.html` for application paths such as `/dashboard` and `/sign-in`, so direct visits
 and refreshes work. Supabase remains a separate backend at the repository root.
+
+### Deploying on Render
+
+The repository root has a [`render.yaml`](../../render.yaml) Blueprint that defines this app as
+the static site `callpilot-console` (and the marketing site next to it). **New + > Blueprint**
+in the Render dashboard creates both; to set this one up by hand use **New + > Static Site**:
+
+| Setting           | Value                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Root Directory    | `apps/client-console`                                                              |
+| Build Command     | `corepack enable && corepack pnpm install --frozen-lockfile && corepack pnpm build` |
+| Publish Directory | `dist`                                                                             |
+| Redirect/Rewrite  | Rewrite `/*` to `/index.html`                                                      |
+
+Environment variables (Static sites bake them in at build time; change one, then redeploy):
+
+| Variable                        | Value                                                        |
+| ------------------------------- | ------------------------------------------------------------ |
+| `NODE_VERSION`                  | `22.19.0`                                                    |
+| `VITE_SUPABASE_URL`             | Hosted Supabase project URL, from Project Settings > API     |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | The project's publishable (anon) key from the same page      |
+
+Both `VITE_*` values are missing from the build until you add them, and the app then throws
+"Supabase is not configured" on load, so set them before the first deploy. The hosted Supabase
+project must also know the console's address: in **Authentication > URL Configuration** set
+**Site URL** to the Render URL and add it to **Redirect URLs**. Point the marketing site's
+`APP_URL` at the same address so its "Get started" buttons open the console.
+
+`pnpm install` also downloads the Supabase CLI binary because `supabase` is a dev dependency
+with a build script. That adds time to each Render build but is harmless.

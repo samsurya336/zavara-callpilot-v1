@@ -41,8 +41,8 @@ function ExtractedText({ entry }: { entry: Knowledge }) {
       {status === 'failed' && (
         <>
           <p className="auth-error">
-            We couldn’t read text from this file. Scanned, empty or password-protected files can’t
-            be processed.
+            {entry.extractionError ||
+              'We couldn’t read text from this PDF. Scanned, empty or password-protected files can’t be processed.'}
           </p>
           {retry.error && (
             <p role="alert" className="auth-error mt-3">
@@ -199,13 +199,17 @@ function KnowledgeDetails({ entry, onGenerate }: { entry: Knowledge; onGenerate:
                 {fileTypeLabel(entry.fileType)} · {formatFileSize(entry.fileMeta.size)}
               </p>
             </div>
-            <Button asChild variant="secondary" className="h-11 rounded-full px-4">
-              <a href={entry.fileUrl} target="_blank" rel="noreferrer">
-                Open
-                <span className="sr-only"> file in a new tab</span>
-                <ExternalLink aria-hidden="true" />
-              </a>
-            </Button>
+            {entry.fileUrl ? (
+              <Button asChild variant="secondary" className="h-11 rounded-full px-4">
+                <a href={entry.fileUrl} target="_blank" rel="noreferrer">
+                  Open
+                  <span className="sr-only"> file in a new tab</span>
+                  <ExternalLink aria-hidden="true" />
+                </a>
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground">File unavailable</span>
+            )}
           </div>
           <dl className="knowledge-facts mt-6">
             <div>

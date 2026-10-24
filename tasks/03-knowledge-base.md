@@ -10,10 +10,10 @@ As a participant, I want to upload my product details, so that I can generate pr
 
 ## To Do
 
-- [ ] Add Knowledge Base list/detail/create screens with title, optional description and exactly one PDF or TXT per entry. Allow multiple entries per account.
+- [ ] Add Knowledge Base list/detail/create screens with title and exactly one PDF per entry. Allow multiple entries per account.
 - [ ] Show filename/type, created date and Uploading/Processing/Ready/Failed state. State the supported file size/content limit and ask people to upload only authorised material.
 - [ ] Save the private file and metadata under the verified owner. Validate size and actual supported type on the backend, not just the extension.
-- [ ] Extract readable text with a maintained PDF/TXT parser. Handle empty, scanned or unreadable files honestly, support processing retry and clean up incomplete uploads.
+- [ ] Extract readable text with the Gemini extraction function. Handle empty, scanned or unreadable files honestly, support processing retry and clean up incomplete uploads.
 - [ ] Make only Ready entries selectable for challenge generation. Provide a route back to Challenges with this entry selected; use the generation action defined in task 04.
 - [ ] Enforce personal database/Storage access for metadata, files, extracted text and source retrieval. Remove conflicting broad demo policies; another signed-in account must not download or attach the source.
 - [ ] Keep stable knowledge content/version references for generated challenges, reports and Time Machine. If replacement/deletion is offered, handle dependent records clearly rather than silently changing their evidence.
