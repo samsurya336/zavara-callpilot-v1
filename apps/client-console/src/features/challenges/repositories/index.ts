@@ -49,6 +49,26 @@ export interface GenerateChallengeInput {
   goal: string
 }
 
+export interface CallSession {
+  callSessionId: string
+  conversationToken: string
+  challenge: {
+    id: string
+    title: string
+    callType: ChallengeCallType
+    durationMinutes: number
+  }
+  participants: Array<{
+    id: string
+    name: string
+    designation: string
+    company: string
+    voiceLabel: string
+    lead: boolean
+  }>
+  dynamicVariables: Record<string, string | number | boolean>
+}
+
 async function functionError(error: unknown, fallback: string) {
   const context = (error as { context?: Response })?.context
   if (context) {
@@ -154,5 +174,31 @@ export const challengeRepository = {
       body: { retryChallengeId: challengeId },
     })
     if (error) throw await functionError(error, 'Could not retry this challenge. Try again.')
+  },
+
+  async startCall(challengeId: string) {
+    const { data, error } = await supabase.functions.invoke<CallSession>(
+      'elevenlabs-agent-session',
+      { body: { challengeId, connectionType: 'webrtc' } },
+    )
+    if (error) throw await functionError(error, 'Could not prepare the call. Try again.')
+    if (!data?.conversationToken || !data.callSessionId) {
+      throw new Error('The call service returned an incomplete session.')
+    }
+    return data
+  },
+
+  async activateCall(callSessionId: string, conversationId: string) {
+    const { error } = await supabase.functions.invoke('elevenlabs-agent-session', {
+      body: { action: 'activate', callSessionId, conversationId },
+    })
+    if (error) throw await functionError(error, 'Could not connect the call session.')
+  },
+
+  async endCall(callSessionId: string) {
+    const { error } = await supabase.functions.invoke('elevenlabs-agent-session', {
+      body: { action: 'end', callSessionId },
+    })
+    if (error) throw await functionError(error, 'Could not end the call session.')
   },
 }

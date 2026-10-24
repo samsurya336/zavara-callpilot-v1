@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import type { CallSpeaker } from '../_shared/calls.ts'
 import { hmacHex, verifySignature } from './signature.ts'
-import { mapTranscript } from './transcript.ts'
+import { mapTranscript } from '../_shared/transcript.ts'
 
 const speakers: CallSpeaker[] = [
   { participantId: 'ceo', name: 'Arjun Mehta', label: 'Arjun', lead: true },

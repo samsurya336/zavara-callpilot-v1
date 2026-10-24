@@ -249,8 +249,18 @@ challenge or base-setting change. Agents accept signed URLs only and allow no cl
 the browser cannot read or change the persona. `product_context` is deliberately not given to
 buyers.
 
-The call itself runs over a WebSocket between the browser and ElevenLabs. The client needs
-`@elevenlabs/react` (not installed yet):
+The client console requests `connectionType: "webrtc"` when starting a call. The backend returns
+`conversationToken` and stores the provider conversation ID before connecting; the browser passes
+that token to `startSession({ conversationToken, connectionType: "webrtc", dynamicVariables })`.
+Voice calls use WebRTC to avoid the client WebSocket audio disconnects seen with code 1006.
+The endpoint keeps signed-URL WebSocket responses for older clients that omit `connectionType`.
+
+My Sessions lists the signed-in user's calls and polls for saved coaching reports. Each report
+shows the summary, overall score, priority improvement, strengths, expandable skill scores and
+transcript evidence, with Boardroom and product checks when applicable. The report view can retry
+processing through the authenticated end-call action without starting a new call.
+
+The older WebSocket integration remains supported: The client uses `@elevenlabs/react`:
 
 ```ts
 const conversation = useConversation({ onMessage, onError });

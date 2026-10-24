@@ -48,3 +48,5 @@ export function useGenerateChallenge() {
       queryClient.invalidateQueries({ queryKey: challengesKey(session?.user.id ?? '') }),
   })
 }
+
+export { useChallengeCall, type CallPhase } from './use-challenge-call'

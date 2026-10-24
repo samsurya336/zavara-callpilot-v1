@@ -1,5 +1,10 @@
 import type { serviceClient } from '../_shared/index.ts'
-import { type CallSessionStatus, type CallSpeaker, TABLES } from '../_shared/calls.ts'
+import {
+  type CallSessionStatus,
+  type CallSpeaker,
+  type ReportStatus,
+  TABLES,
+} from '../_shared/calls.ts'
 
 // Column names follow the agreed challenge/participant/call_session schema in snake_case.
 // This file is the only place that knows them.
@@ -34,7 +39,6 @@ export interface ChallengeRow {
   scenario: string | null
   is_active: boolean
   source: 'INTERNAL' | 'KNOWLEDGE_BASE'
-  mode: CallMode | null
   configs: { elevenlabs?: AgentRef; [key: string]: unknown } | null
   created_by: string | null
 }
@@ -54,12 +58,12 @@ export interface ParticipantRow {
 
 const CHALLENGE_COLUMNS =
   'id, title, description, category, difficulty, call_type, duration_minutes, objective, ' +
-  'scenario, is_active, source, mode, configs, created_by'
+  'scenario, is_active, source, configs, created_by'
 const PARTICIPANT_COLUMNS =
   'id, name, designation, company, personality, communication_style, hidden_motivation, ' +
   'objections, decision_authority, voice_configs'
 // The first participant leads the meeting and speaks in the agent's default voice.
-const PARTICIPANT_ORDER = 'created_at'
+const PARTICIPANT_ORDER = 'sort_order'
 const AGENT_ID_PATH = 'configs->elevenlabs->>agentId'
 
 export async function loadChallenge(db: Db, challengeId: string) {
@@ -114,16 +118,41 @@ export async function saveAgentRef(
   return data.length > 0
 }
 
-// Unfinished sessions past their expiry would otherwise hold the one-active-call lock forever.
-// Expiry is after the provider-enforced max duration, so no live call is cancelled.
-export async function expireStaleSessions(db: Db, userId: string, now: Date) {
-  const { error } = await db
+// Ends the user's unfinished sessions, or just one: a session that never connected is cancelled
+// and a connected one is completed. The post-call webhook later stores the transcript and final
+// status by conversation ID, so ending first loses nothing.
+const CLOSE_TRANSITIONS: [CallSessionStatus, CallSessionStatus][] = [
+  ['CREATED', 'CANCELLED'],
+  ['ACTIVE', 'COMPLETED'],
+]
+
+export async function closeCallSessions(db: Db, userId: string, callSessionId?: string) {
+  const endedAt = new Date().toISOString()
+  for (const [from, to] of CLOSE_TRANSITIONS) {
+    let query = db
+      .from(TABLES.callSessions)
+      .update({ status: to, ended_at: endedAt })
+      .eq('user_id', userId)
+      .eq('status', from)
+    if (callSessionId) query = query.eq('id', callSessionId)
+    const { error } = await query
+    if (error) throw error
+  }
+}
+
+// The provider conversation of the user's ended call, or null when it never connected or its
+// report is already saved.
+export async function loadEndedConversationId(db: Db, userId: string, callSessionId: string) {
+  const { data, error } = await db
     .from(TABLES.callSessions)
-    .update({ status: 'CANCELLED' satisfies CallSessionStatus })
+    .select('provider_session_id')
+    .eq('id', callSessionId)
     .eq('user_id', userId)
-    .in('status', ['CREATED', 'ACTIVE'] satisfies CallSessionStatus[])
-    .lt('metadata->>expiresAt', now.toISOString())
+    .in('status', ['COMPLETED', 'FAILED'] satisfies CallSessionStatus[])
+    .neq('report_status', 'READY' satisfies ReportStatus)
+    .maybeSingle()
   if (error) throw error
+  return (data?.provider_session_id as string | null) ?? null
 }
 
 export interface NewCallSession {
@@ -136,11 +165,10 @@ export interface NewCallSession {
     speakers: CallSpeaker[]
     agentId: string
     configHash: string
-    expiresAt: string
   }
 }
 
-// Returns null when the user already has an active call (unique index on active sessions).
+// Returns null when another start for the same user won the race (unique index on open sessions).
 export async function insertCallSession(db: Db, session: NewCallSession) {
   const { data, error } = await db
     .from(TABLES.callSessions)
@@ -157,4 +185,27 @@ export async function insertCallSession(db: Db, session: NewCallSession) {
   if (error?.code === '23505') return null
   if (error) throw error
   return data.id as string
+}
+
+export async function activateCallSession(
+  db: Db,
+  userId: string,
+  callSessionId: string,
+  conversationId: string,
+) {
+  const { data, error } = await db
+    .from(TABLES.callSessions)
+    .update({
+      status: 'ACTIVE' satisfies CallSessionStatus,
+      provider_session_id: conversationId,
+      started_at: new Date().toISOString(),
+    })
+    .eq('id', callSessionId)
+    .eq('user_id', userId)
+    .eq('status', 'CREATED')
+    .select('id')
+    .maybeSingle()
+  if (error?.code === '23505') return 'CONFLICT' as const
+  if (error) throw error
+  return data ? 'ACTIVE' as const : 'NOT_FOUND' as const
 }
