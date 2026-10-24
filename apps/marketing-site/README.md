@@ -41,6 +41,7 @@ when they are blocked (see below).
 | `assets/logo-mark.svg`      | Favicon and social image: three slanted bars (the product mark)         |
 | `assets/callpilot-mark.svg` | Previous brand mark, kept for reference                                 |
 | `tools/build_pages.py`      | Optional page generator; see [tools/README.md](tools/README.md)         |
+| `tools/build.mjs`           | Host build step: copies the site to `dist/` and writes `config.js` from `APP_URL` |
 | `DESIGN.md`                 | Visual design guide for this site                                       |
 
 Icons are Lucide outlines at 1.75 stroke, inlined as an SVG sprite at the top of each page.
@@ -140,7 +141,44 @@ motion on, and with JavaScript disabled (the page must still read correctly).
 
 ## Deployment
 
-Upload the folder as-is to any static host (GitHub Pages, Netlify, Vercel static, S3 and
+### Build for a host
+
+`tools/build.mjs` copies the site into `dist/` and writes `dist/js/config.js` from the `APP_URL`
+environment variable, so the application address is set per deployment and never committed:
+
+```sh
+cd apps/marketing-site
+APP_URL=https://app.example.com node tools/build.mjs   # dist/ is ready to upload
+```
+
+`dist/` is ignored by git. Without `APP_URL` the build still succeeds and "Get started" falls
+back to the in-page early-access section.
+
+### Render
+
+The repository root has a [`render.yaml`](../../render.yaml) Blueprint, so the fastest route is
+**New + > Blueprint**, select this repository, and Render creates a static site named
+`callpilot-marketing` with these settings. To set it up by hand instead, choose
+**New + > Static Site** and enter:
+
+| Setting           | Value                 |
+| ----------------- | --------------------- |
+| Root Directory    | `apps/marketing-site` |
+| Build Command     | `node tools/build.mjs` |
+| Publish Directory | `dist`                |
+
+Then, under **Environment**, add `APP_URL` with the application's address (for example
+`https://app.callpilot.in`). Static sites bake environment variables in at build time, so after
+adding or changing `APP_URL` click **Manual Deploy > Deploy latest commit** if a deploy does not
+start on its own. Pushes to the tracked branch redeploy automatically.
+
+Render serves `404.html` for unknown paths without extra configuration. The Blueprint also sets
+long cache headers for `css/`, `js/` and `assets/`; the `?v=` query on the asset links in
+`tools/build_pages.py` is what busts that cache, so bump it when shipping changes to those files.
+
+### Other hosts
+
+Run the build and upload `dist/` to any static host (GitHub Pages, Netlify, Vercel static, S3 and
 CloudFront, Nginx). Configure the host to serve `404.html` for unknown paths. Set the real
 production URL before adding canonical, sitemap, robots or Open Graph URLs.
 
