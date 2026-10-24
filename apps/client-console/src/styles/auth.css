@@ -1,0 +1,132 @@
+.auth-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 40px;
+}
+.auth-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.auth-wordmark {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.auth-byline {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.auth-main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 32px 24px 112px;
+  outline: none;
+}
+.auth-content {
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+}
+.auth-title {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.auth-description {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+.auth-form {
+  margin-top: 32px;
+}
+.auth-fields {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.auth-fields label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-input {
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--input);
+  border-radius: 16px;
+  background: var(--glass);
+  color: var(--foreground);
+  font-size: 15px;
+}
+.auth-input:disabled {
+  opacity: 0.5;
+}
+.auth-password-input {
+  padding-right: 56px;
+}
+.auth-error {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--foreground);
+  border-left: 3px solid var(--destructive);
+  padding-left: 12px;
+  overflow-wrap: anywhere;
+}
+.auth-footer {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.auth-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 639px) {
+  .auth-brand {
+    padding: max(24px, env(safe-area-inset-top)) 16px 24px;
+  }
+  .auth-main {
+    padding: 24px 16px max(32px, env(safe-area-inset-bottom));
+  }
+  .auth-title {
+    font-size: 26px;
+  }
+}
+@media (max-width: 767px) {
+  .auth-input {
+    font-size: 16px;
+  }
+}
+@media (max-height: 600px) {
+  .auth-main {
+    align-items: start;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}

@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+
+# Logs and test output
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+coverage/
+
+# Local environment and macOS files
+.env*
+!.env.example
+*.local
+.DS_Store
+
+# Client console build output
+/apps/client-console/**/dist
+/apps/client-console/**/dist-ssr
+
+# Client console local editor files (keep shared root VS Code settings trackable)
+/apps/client-console/.vscode/*
+!/apps/client-console/.vscode/extensions.json
+/apps/client-console/**/.idea
+/apps/client-console/**/*.suo
+/apps/client-console/**/*.ntvs*
+/apps/client-console/**/*.njsproj
+/apps/client-console/**/*.sln
+/apps/client-console/**/*.sw?
+
+# Marketing site build output and generated TypeScript files
+/apps/marketing-site/.next/
+/apps/marketing-site/out/
+/apps/marketing-site/build/
+/apps/marketing-site/**/*.tsbuildinfo
+/apps/marketing-site/**/next-env.d.ts
+
+# Marketing site deployment files and private certificates
+/apps/marketing-site/**/.vercel
+/apps/marketing-site/**/*.pem
+
+# Marketing site alternate package-manager files
+/apps/marketing-site/.pnp
+/apps/marketing-site/**/.pnp.*
+/apps/marketing-site/.yarn/*
+!/apps/marketing-site/.yarn/patches
+!/apps/marketing-site/.yarn/plugins
+!/apps/marketing-site/.yarn/releases
+!/apps/marketing-site/.yarn/versions
+
+brain-junkyard
+
+# Local Supabase CLI state
+/supabase/.temp/
+/supabase/.branches/
+/apps/client-console/supabase/.temp/
+/apps/client-console/supabase/.branches/

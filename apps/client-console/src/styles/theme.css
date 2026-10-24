@@ -1,0 +1,231 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: light;
+  --radius: 1.25rem;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --background: #f4f5f8;
+  --background-gradient: linear-gradient(180deg, #f8f9fb, #eef0f3);
+  --desk: #e9eaee;
+  --foreground: #0e1013;
+  --card: rgb(255 255 255 / 66%);
+  --card-foreground: #0e1013;
+  --popover: rgb(250 250 252 / 98%);
+  --popover-foreground: #0e1013;
+  --primary: #101317;
+  --primary-foreground: #fff;
+  --secondary: rgb(14 16 19 / 5%);
+  --secondary-foreground: #0e1013;
+  --muted: rgb(14 16 19 / 5%);
+  --muted-foreground: rgb(14 16 19 / 65%);
+  --accent: rgb(14 16 19 / 5%);
+  --accent-foreground: #0e1013;
+  --border: rgb(14 16 19 / 8%);
+  --input: rgb(14 16 19 / 14%);
+  --ring: rgb(14 16 19 / 50%);
+  --status-normal: oklch(0.68 0.16 158);
+  --status-borderline: oklch(0.74 0.14 78);
+  --status-high: oklch(0.62 0.19 26);
+  --status-low: oklch(0.62 0.13 252);
+  --destructive: var(--status-high);
+  --destructive-foreground: #fff;
+  --text-tertiary: rgb(14 16 19 / 60%);
+  --glass: rgb(255 255 255 / 66%);
+  --glass-border: rgb(255 255 255 / 90%);
+  --glass-strong: rgb(255 255 255 / 78%);
+  --sheet: rgb(250 250 252 / 96%);
+  --scrim: rgb(12 14 18 / 35%);
+  --shadow-card: 0 1px 2px rgb(16 18 20 / 4%), 0 12px 32px rgb(16 18 20 / 7%);
+  --shadow-float: 0 8px 30px rgb(0 0 0 / 10%);
+  --shadow-cta: 0 4px 12px rgb(0 0 0 / 12%);
+  --ease-meridian: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0b0c0f;
+  --background-gradient: radial-gradient(130% 55% at 50% -8%, #16202e, #0b0c0f 62%);
+  --desk: #0c0d10;
+  --foreground: #f3f5f7;
+  --card: rgb(255 255 255 / 5.5%);
+  --card-foreground: #f3f5f7;
+  --popover: rgb(24 26 30 / 98%);
+  --popover-foreground: #f3f5f7;
+  --primary: #f3f5f7;
+  --primary-foreground: #0e1013;
+  --secondary: rgb(255 255 255 / 7%);
+  --secondary-foreground: #f3f5f7;
+  --muted: rgb(255 255 255 / 7%);
+  --muted-foreground: rgb(243 245 247 / 68%);
+  --accent: rgb(255 255 255 / 7%);
+  --accent-foreground: #f3f5f7;
+  --border: rgb(255 255 255 / 8%);
+  --input: rgb(255 255 255 / 16%);
+  --ring: rgb(243 245 247 / 55%);
+  --text-tertiary: rgb(243 245 247 / 62%);
+  --glass: rgb(255 255 255 / 5.5%);
+  --glass-border: rgb(255 255 255 / 9%);
+  --glass-strong: rgb(24 26 31 / 72%);
+  --sheet: rgb(24 26 30 / 96%);
+  --scrim: rgb(0 0 0 / 55%);
+  --shadow-card: 0 16px 40px rgb(0 0 0 / 24%);
+  --shadow-float: 0 8px 30px rgb(0 0 0 / 30%);
+  --shadow-cta: 0 4px 12px rgb(0 0 0 / 25%);
+}
+
+[data-status='muted'] {
+  --status-normal: oklch(0.66 0.09 158);
+  --status-borderline: oklch(0.72 0.09 78);
+  --status-high: oklch(0.62 0.11 26);
+  --status-low: oklch(0.62 0.09 252);
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+  --color-background: var(--background);
+  --color-desk: var(--desk);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-tertiary: var(--text-tertiary);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+  --color-scrim: var(--scrim);
+  --color-status-normal: var(--status-normal);
+  --color-status-borderline: var(--status-borderline);
+  --color-status-high: var(--status-high);
+  --color-status-low: var(--status-low);
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: var(--radius);
+  --radius-xl: 24px;
+  --radius-2xl: 26px;
+  --radius-sheet: 28px;
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --shadow-cta: var(--shadow-cta);
+  --animate-fade-in: meridian-fade-in 250ms var(--ease-meridian);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    letter-spacing: 0;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    margin: 0;
+    min-width: 320px;
+    color: var(--foreground);
+    font-family: var(--font-body);
+    background: var(--background-gradient), var(--background);
+    background-attachment: fixed;
+  }
+  button,
+  a,
+  input {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled),
+  [role='radio'] {
+    cursor: pointer;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+  }
+  p {
+    text-wrap: pretty;
+  }
+  svg {
+    stroke-width: 1.75;
+    flex-shrink: 0;
+  }
+}
+
+@layer components {
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(20px) saturate(150%);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px) saturate(160%);
+  }
+  .glass-sheet {
+    background: var(--sheet);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(30px) saturate(160%);
+  }
+  .section-label {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
+@keyframes meridian-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --glass: rgb(255 255 255 / 96%);
+    --glass-strong: #f8f9fb;
+  }
+  .dark {
+    --glass: #1a1c21;
+    --glass-strong: #181a1f;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
