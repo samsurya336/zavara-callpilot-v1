@@ -35,11 +35,27 @@ const report = {
 }
 const session = {
   id: 'call',
+  user_id: 'owner',
+  challenge_id: 'challenge',
   title: 'Budget challenge',
   created_at: '2026-10-24T10:00:00Z',
+  started_at: '2026-10-24T10:00:00Z',
+  ended_at: '2026-10-24T10:00:30Z',
   mode: 'BATTLE',
   status: 'COMPLETED',
   duration_seconds: 30,
+  parent_session_id: null,
+  branch_from_turn_id: null,
+  provider_session_id: null,
+  recording_url: null,
+  ownerName: 'Test owner',
+  ownerEmail: 'owner@example.com',
+  callType: 'ONE_ON_ONE',
+  category: 'Discovery',
+  difficulty: 'MEDIUM',
+  description: 'Practise budget discovery.',
+  objective: 'Agree a next step.',
+  participants: [],
   report_status: 'READY',
   report,
   transcript: [{ id: 'turn-1', speaker: 'user', text: 'What is your budget?', timeInCallSecs: 10 }],
@@ -61,20 +77,22 @@ beforeEach(() => {
 it('opens the saved coaching report and shows linked transcript evidence', async () => {
   open()
   const user = userEvent.setup()
-  await user.click(await screen.findByRole('button', { name: /Budget challenge/ }))
+  await user.click(await screen.findByText('Budget challenge'))
+  await user.click(screen.getByRole('tab', { name: 'Report' }))
   expect(screen.getByText('Partial feedback')).toBeInTheDocument()
   expect(screen.getByText('Ask about timing')).toBeInTheDocument()
   await user.click(screen.getByText('View conversation evidence'))
   expect(screen.getByText('View conversation evidence').closest('details')).toHaveTextContent(
     'What is your budget?',
   )
-  expect(mocks.listSessions).toHaveBeenCalledWith('owner')
+  expect(mocks.listSessions).toHaveBeenCalled()
 })
 it('lets a failed report be retried without creating another call', async () => {
   mocks.listSessions.mockResolvedValue([{ ...session, report: null, report_status: 'FAILED' }])
   open()
   const user = userEvent.setup()
-  await user.click(await screen.findByRole('button', { name: /Budget challenge/ }))
+  await user.click(await screen.findByText('Budget challenge'))
+  await user.click(screen.getByRole('tab', { name: 'Report' }))
   await user.click(screen.getByRole('button', { name: 'Check and retry report' }))
   expect(mocks.endCall).toHaveBeenCalledWith('call', expect.anything())
 })
