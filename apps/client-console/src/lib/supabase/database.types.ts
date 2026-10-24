@@ -167,6 +167,8 @@ export type Database = {
           description: string
           difficulty: string
           duration_minutes: number
+          generation_error: string | null
+          generation_status: Database['public']['Enums']['challenge_generation_status']
           id: string
           is_active: boolean
           knowledge_id: string | null
@@ -187,6 +189,8 @@ export type Database = {
           description?: string
           difficulty: string
           duration_minutes: number
+          generation_error?: string | null
+          generation_status?: Database['public']['Enums']['challenge_generation_status']
           id?: string
           is_active?: boolean
           knowledge_id?: string | null
@@ -207,6 +211,8 @@ export type Database = {
           description?: string
           difficulty?: string
           duration_minutes?: number
+          generation_error?: string | null
+          generation_status?: Database['public']['Enums']['challenge_generation_status']
           id?: string
           is_active?: boolean
           knowledge_id?: string | null
@@ -585,6 +591,7 @@ export type Database = {
       call_mode: 'ASSIST' | 'BATTLE'
       call_status: 'CREATED' | 'ACTIVE' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
       call_type: 'ONE_ON_ONE' | 'BOARDROOM'
+      challenge_generation_status: 'PROCESSING' | 'READY' | 'FAILED'
       challenge_source: 'INTERNAL' | 'KNOWLEDGE_BASE'
       knowledge_extraction_status: 'PROCESSING' | 'READY' | 'FAILED'
       report_status: 'NOT_REQUESTED' | 'PROCESSING' | 'READY' | 'FAILED'
@@ -715,6 +722,7 @@ export const Constants = {
       call_mode: ['ASSIST', 'BATTLE'],
       call_status: ['CREATED', 'ACTIVE', 'COMPLETED', 'FAILED', 'CANCELLED'],
       call_type: ['ONE_ON_ONE', 'BOARDROOM'],
+      challenge_generation_status: ['PROCESSING', 'READY', 'FAILED'],
       challenge_source: ['INTERNAL', 'KNOWLEDGE_BASE'],
       knowledge_extraction_status: ['PROCESSING', 'READY', 'FAILED'],
       report_status: ['NOT_REQUESTED', 'PROCESSING', 'READY', 'FAILED'],

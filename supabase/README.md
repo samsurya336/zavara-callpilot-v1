@@ -173,6 +173,37 @@ in `functions/_shared/`; frontend code must not import Deno modules. For a focus
 corepack pnpm dlx deno check --config ../../supabase/functions/deno.json ../../supabase/functions/list-users-organizations/index.ts
 ```
 
+## Challenge Generation Edge Function
+
+[generate-challenges](functions/generate-challenges/index.ts) creates three Knowledge-based
+Challenges from one of the caller's `READY` knowledge entries: two One-on-One calls and one
+Boardroom (CEO, CTO, CFO). It accepts `POST { "knowledgeId": "uuid", "difficulty": "EASY" |
+"MEDIUM" | "HARD" | null, "goal": "optional text" }`, inserts three inactive `PROCESSING`
+placeholder rows and returns `202 { "status": "PROCESSING", "challengeIds": [...] }` right away.
+`POST { "retryChallengeId": "uuid" }` regenerates one `FAILED` challenge. A repeated request
+while a run is in progress returns the same IDs instead of starting another run.
+
+In the background, one call to the AgenticOrg agent configured with
+[prompts/challenge-generation/system-prompt.md](../prompts/challenge-generation/system-prompt.md)
+designs all pending slots. [challenges.ts](functions/generate-challenges/challenges.ts) validates
+the reply (format, participant count and roles, grounding excerpts that really appear in the
+knowledge). Valid challenges are saved and activated; invalid ones get one more agent call if
+time allows, then become `FAILED` with a short `generation_error`. A run still `PROCESSING` after
+five minutes is treated as failed. The frontend polls every three seconds while any challenge is
+generating.
+
+Errors are `{ "error": "message" }`: 400 bad body, 401 no session, 404 missing knowledge or
+challenge, 409 knowledge not ready or challenge already ready, 429 daily limit
+(`CHALLENGE_GENERATION_DAILY_LIMIT`) or too many retries, 503 agent not configured. Product
+facts stay in `product_context` and `configs.generation.grounding`, which buyers never see.
+`ELEVENLABS_VOICE_POOL` gives generated buyers distinct voices.
+
+Try the prompt directly, without Supabase, from the repo root:
+
+```sh
+node --env-file=supabase/functions/.env prompts/challenge-generation/test.ts
+```
+
 ## Voice Call Edge Functions
 
 [elevenlabs-agent-session](functions/elevenlabs-agent-session/index.ts) starts a practice call.
@@ -272,6 +303,8 @@ Copy [functions/.env.example](functions/.env.example) to `functions/.env` for
 ```sh
 npx -y deno check --config deno.json elevenlabs-agent-session/index.ts elevenlabs-post-call/index.ts
 npx -y deno test --config deno.json --allow-env elevenlabs-agent-session elevenlabs-post-call
+npx -y deno check --config deno.json generate-challenges/index.ts
+npx -y deno test --config deno.json generate-challenges
 # Creates and deletes a real agent; needs the API key and default voice in the environment.
 ELEVENLABS_LIVE=1 npx -y deno test --config deno.json --allow-env --allow-net elevenlabs-agent-session/elevenlabs.live.test.ts
 ```
@@ -327,6 +360,7 @@ corepack pnpm supabase secrets set --env-file ../../supabase/functions/.env
 corepack pnpm supabase functions deploy extract-knowledge
 corepack pnpm supabase functions deploy elevenlabs-agent-session
 corepack pnpm supabase functions deploy elevenlabs-post-call
+corepack pnpm supabase functions deploy generate-challenges
 ```
 
 Enter credentials directly in your terminal when prompted. In the remote Auth dashboard,

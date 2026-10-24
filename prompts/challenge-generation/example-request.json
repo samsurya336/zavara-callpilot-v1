@@ -1,0 +1,26 @@
+{
+  "slots": [
+    {
+      "slot": 1,
+      "call_type": "one_on_one",
+      "angle": "First discovery call: uncover the buyer's real problem and agree a next step."
+    },
+    {
+      "slot": 2,
+      "call_type": "one_on_one",
+      "angle": "Later-stage pushback on price, a competitor or the risk of switching."
+    },
+    {
+      "slot": 3,
+      "call_type": "boardroom",
+      "angle": "Executive evaluation: the CEO, CTO and CFO decide whether to start a pilot."
+    }
+  ],
+  "difficulty": null,
+  "user_goal": null,
+  "avoid_titles": [],
+  "knowledge": {
+    "title": "LedgerLoop product sheet (fictional)",
+    "content": "LedgerLoop automates invoice capture, approval routing and vendor payments for mid-size companies.\nPricing: Growth plan ₹4,50,000 per year for up to 5,000 invoices per month. Annual billing; quarterly billing available at 5% extra.\nPilot: 60-day paid pilot at ₹60,000, credited towards the first year if the customer signs.\nIntegrations: native connectors for Tally, SAP Business One and Zoho Books. NetSuite is supported through the REST API and scheduled CSV sync, not a native connector.\nImplementation: typically 4 to 6 weeks including ERP sync and approval-rule setup.\nSecurity: SOC 2 Type II certified. Customer data is hosted in AWS Mumbai (ap-south-1). SSO via SAML.\nResults: customers report a median 40% reduction in invoice processing time after three months."
+  }
+}

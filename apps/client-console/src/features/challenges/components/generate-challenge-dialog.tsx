@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button'
 import { useKnowledgeList } from '@/features/knowledge'
 import { knowledgeStatus } from '@/features/knowledge/services'
 import { useGenerateChallenge } from '../hooks'
-import type { ChallengeCallType, ChallengeDifficulty } from '../repositories'
-import { callTypeLabels, difficultyLabels } from '../services'
+import type { ChallengeDifficulty } from '../repositories'
+import { difficultyLabels } from '../services'
 import '@/styles/auth.css'
 
 const GOAL_MAX_LENGTH = 240
@@ -59,7 +59,6 @@ export function GenerateChallengeDialog({
   const generate = useGenerateChallenge()
   const [open, setOpen] = useState(false)
   const [knowledgeId, setKnowledgeId] = useState('')
-  const [callType, setCallType] = useState<ChallengeCallType>('ONE_ON_ONE')
   const [difficulty, setDifficulty] = useState<ChallengeDifficulty | 'ANY'>('ANY')
   const [goal, setGoal] = useState('')
 
@@ -80,7 +79,6 @@ export function GenerateChallengeDialog({
     generate.mutate(
       {
         knowledgeId,
-        callType,
         difficulty: difficulty === 'ANY' ? null : difficulty,
         goal: goal.trim(),
       },
@@ -96,7 +94,8 @@ export function GenerateChallengeDialog({
         <Dialog.Content className="knowledge-dialog glass-sheet animate-fade-in">
           <Dialog.Title className="knowledge-dialog-title pr-14">General Challenges</Dialog.Title>
           <Dialog.Description className="mt-3 text-sm text-muted-foreground">
-            Generate a Knowledge-based Challenge from one of your ready knowledge entries.
+            Creates three Knowledge-based Challenges from one ready knowledge entry: two One-on-One
+            calls and one Boardroom with a CEO, CTO and CFO.
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button
@@ -139,7 +138,7 @@ export function GenerateChallengeDialog({
               </div>
             </div>
           ) : (
-            <form className="mt-7" onSubmit={submit} aria-label="Generate challenge">
+            <form className="mt-7" onSubmit={submit} aria-label="Generate challenges">
               <fieldset className="auth-fields" disabled={generate.isPending}>
                 <div>
                   <label htmlFor="challenge-knowledge">Knowledge</label>
@@ -157,16 +156,6 @@ export function GenerateChallengeDialog({
                     ))}
                   </select>
                 </div>
-                <Segmented<ChallengeCallType>
-                  legend="Format"
-                  name="challenge-format"
-                  value={callType}
-                  onChange={setCallType}
-                  options={(['ONE_ON_ONE', 'BOARDROOM'] as const).map((value) => ({
-                    value,
-                    label: callTypeLabels[value],
-                  }))}
-                />
                 <Segmented<ChallengeDifficulty | 'ANY'>
                   legend="Difficulty"
                   name="challenge-difficulty"
@@ -211,7 +200,7 @@ export function GenerateChallengeDialog({
                     ) : (
                       <Sparkles aria-hidden="true" />
                     )}
-                    {generate.isPending ? 'Generating...' : 'Generate'}
+                    {generate.isPending ? 'Starting...' : 'Generate 3 challenges'}
                   </Button>
                 </div>
               </fieldset>
