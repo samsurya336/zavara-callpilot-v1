@@ -29,6 +29,15 @@ export async function authenticate(request: Request): Promise<User | Response> {
   return data.user
 }
 
+// Keeps work running after the response is sent. The Edge Runtime still stops it at the
+// function's wall-clock limit, so background work must be bounded.
+export function runInBackground(task: Promise<unknown>) {
+  const logged = task.catch((error) => console.error(error))
+  const runtime = (globalThis as { EdgeRuntime?: { waitUntil(task: Promise<unknown>): void } })
+    .EdgeRuntime
+  runtime?.waitUntil(logged)
+}
+
 // Bypasses table policies. Use only for server-side reads/writes the caller is already authorised
 // for, and never return its rows unfiltered.
 export function serviceClient() {

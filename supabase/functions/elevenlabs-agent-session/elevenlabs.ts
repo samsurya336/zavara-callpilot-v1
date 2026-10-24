@@ -1,3 +1,4 @@
+import type { ProviderConversation } from '../_shared/post-call.ts'
 import type { AgentConfig } from './agent-config.ts'
 
 const API_BASE = 'https://api.elevenlabs.io/v1/convai'
@@ -49,6 +50,12 @@ export async function deleteAgent(agentId: string) {
   await request(`/agents/${encodeURIComponent(agentId)}`, { method: 'DELETE' })
 }
 
+export async function getConversation(conversationId: string) {
+  return await request<ProviderConversation>(
+    `/conversations/${encodeURIComponent(conversationId)}`,
+  )
+}
+
 export async function getSignedUrl(agentId: string) {
   const params = new URLSearchParams({ agent_id: agentId, include_conversation_id: 'true' })
   const body = await request<{ signed_url: string; conversation_id?: string }>(
@@ -58,4 +65,14 @@ export async function getSignedUrl(agentId: string) {
   const conversationId = body.conversation_id ??
     new URL(body.signed_url).searchParams.get('conversation_id')
   return { signedUrl: body.signed_url, conversationId }
+}
+
+// WebRTC carries microphone audio independently of the browser's WebSocket lifecycle.
+export async function getConversationToken(agentId: string) {
+  const params = new URLSearchParams({ agent_id: agentId })
+  const body = await request<{ token: string; conversation_id: string }>(
+    `/conversation/token?${params}`,
+  )
+  if (!body.token || !body.conversation_id) throw new Error('Incomplete voice session')
+  return { conversationToken: body.token, conversationId: body.conversation_id }
 }
