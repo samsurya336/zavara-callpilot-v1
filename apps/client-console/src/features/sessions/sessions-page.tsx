@@ -1,149 +1,663 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Clock3,
+  FileText,
+  GitBranch,
+  MessageSquareText,
+  RotateCcw,
+  Target,
+  UsersRound,
+} from 'lucide-react'
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks'
 import { challengeRepository } from '@/features/challenges/repositories'
-import { listSessions, type SavedTurn } from './repository'
+import { listSessions, type SavedTurn, type SessionRecord } from './repository'
 import type { CallReport, ReportImprovement } from './types'
 
-function Improvement({ item, turns }: { item: ReportImprovement; turns: SavedTurn[] }) {
+type DetailTab = 'overview' | 'report' | 'transcript'
+const humanize = (value: string) =>
+  value
+    .toLowerCase()
+    .replaceAll('_', ' ')
+    .replace(/^./, (letter) => letter.toUpperCase())
+const duration = (seconds: number | null) =>
+  `${Math.floor((seconds ?? 0) / 60)}m ${String((seconds ?? 0) % 60).padStart(2, '0')}s`
+const date = (value: string | null) =>
+  value
+    ? new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(
+        new Date(value),
+      )
+    : 'Not recorded'
+const turnTime = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+
+function Status({ value, report = false }: { value: string; report?: boolean }) {
   return (
-    <article className="space-y-3 border-t border-border py-5">
-      <h3 className="font-semibold">{item.title}</h3>
-      {item.quote && (
-        <blockquote className="border-l-2 border-primary pl-4 text-muted-foreground">
-          “{item.quote}”
-        </blockquote>
+    <span
+      className="session-pill"
+      data-status={value.toLowerCase()}
+      data-report={report || undefined}
+    >
+      <i />
+      {humanize(value)}
+    </span>
+  )
+}
+
+function Improvement({
+  item,
+  turns,
+  onTimeMachine,
+}: {
+  item: ReportImprovement
+  turns: SavedTurn[]
+  onTimeMachine?: (turnId: string) => void
+}) {
+  const evidence = turns.filter((turn) => item.turnIds.includes(turn.id))
+  return (
+    <article className="report-focus-card">
+      <header>
+        <span>
+          <Target size={18} />
+        </span>
+        <div>
+          <p className="section-label">Priority improvement</p>
+          <h3>{item.title}</h3>
+        </div>
+      </header>
+      {item.quote && <blockquote>“{item.quote}”</blockquote>}
+      <div className="report-coaching-grid">
+        <div>
+          <small>What to change</small>
+          <p>{item.whatToChange}</p>
+        </div>
+        <div>
+          <small>Why it matters</small>
+          <p>{item.whyItMatters}</p>
+        </div>
+        <div className="report-try">
+          <small>Try this next</small>
+          <p>{item.tryThis}</p>
+          {item.exampleResponse && <strong>“{item.exampleResponse}”</strong>}
+        </div>
+      </div>
+      {item.retryTurnId && onTimeMachine && (
+        <Button className="time-machine-button" onClick={() => onTimeMachine(item.retryTurnId!)}>
+          <RotateCcw size={16} />
+          Try a different answer
+          <ArrowRight size={16} />
+        </Button>
       )}
-      <p>{item.whatToChange}</p>
-      <p className="text-muted-foreground">{item.whyItMatters}</p>
-      <p>
-        <strong>Try this: </strong>
-        {item.tryThis}
-      </p>
-      {item.exampleResponse && (
-        <blockquote className="rounded-xl bg-muted p-4">“{item.exampleResponse}”</blockquote>
-      )}
-      <details>
-        <summary className="cursor-pointer font-medium">View conversation evidence</summary>
-        {turns
-          .filter((turn) => item.turnIds.includes(turn.id))
-          .map((turn) => (
-            <p key={turn.id} className="mt-3">
-              <strong>{turn.speaker === 'user' ? 'You' : 'Buyer'}: </strong>
-              {turn.text}
+      {evidence.length > 0 && (
+        <details className="report-evidence">
+          <summary>View conversation evidence</summary>
+          {evidence.map((turn) => (
+            <p key={turn.id}>
+              <b>{turn.speaker === 'user' ? 'You' : 'Buyer'}:</b> {turn.text}
             </p>
           ))}
-      </details>
+        </details>
+      )}
     </article>
   )
 }
 
-export function ReportView({ report, turns }: { report: CallReport; turns: SavedTurn[] }) {
+function PerformanceChart({
+  report,
+  branchCount,
+  reportStatus,
+}: {
+  report: CallReport
+  branchCount: number
+  reportStatus: string
+}) {
+  const improvementCount = (report.priorityImprovement ? 1 : 0) + report.moreImprovements.length
+  const skillColours = ['#63a7ff', '#8b8df8', '#36c6b4', '#f5b84b', '#df77c8']
+  const data = [
+    ...report.skills.map((skill, index) => ({
+      name: skill.label,
+      value: skill.score ?? 0.35,
+      display: skill.score === null ? 'Not scored' : `${skill.score}/5`,
+      color: skillColours[index % skillColours.length],
+    })),
+    {
+      name: 'Improvement moments',
+      value: Math.max(improvementCount, 0.35),
+      display: String(improvementCount),
+      color: '#f5b84b',
+    },
+    {
+      name: 'Time Machine uses',
+      value: Math.max(branchCount, 0.35),
+      display: String(branchCount),
+      color: '#8b8df8',
+    },
+    {
+      name: 'Report status',
+      value: 1,
+      display: humanize(reportStatus),
+      color: reportStatus === 'READY' ? '#49d6ad' : '#ff7f91',
+    },
+  ]
   return (
-    <div className="space-y-6 text-sm leading-relaxed">
-      <section className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {report.evidence.level === 'FULL' ? 'Call feedback' : 'Partial feedback'}
-        </p>
-        <h3 className="font-display text-2xl font-semibold">{report.outcome.label}</h3>
-        <p>{report.summary}</p>
-        <p>{report.outcome.explanation}</p>
-        {report.evidence.note && <p className="rounded-xl bg-muted p-4">{report.evidence.note}</p>}
-        <p className="text-lg font-semibold">
-          {report.overall.score === null
-            ? 'Not enough evidence'
-            : `${report.overall.score}/100 · ${report.overall.label}`}
-        </p>
-        <p className="text-muted-foreground">{report.overall.explanation}</p>
-        <p className="text-xs text-muted-foreground">
-          AI practice feedback · Simulated buyer outcome
-        </p>
-      </section>
-      {report.priorityImprovement && (
-        <section>
-          <h2 className="text-lg font-semibold">Focus on this first</h2>
-          <Improvement item={report.priorityImprovement} turns={turns} />
-        </section>
-      )}
-      {report.strengths.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Keep doing this</h2>
-          {report.strengths.map((item) => (
-            <p key={item.turnId + item.title} className="mb-3">
-              <strong>{item.title}. </strong>
-              {item.reason}
-            </p>
-          ))}
-        </section>
-      )}
-      <details className="border-t border-border pt-4">
-        <summary className="cursor-pointer font-semibold">Skill breakdown and scoring</summary>
-        <p className="my-3 text-muted-foreground">
-          1 = not shown, 2 = weak, 3 = adequate, 4 = strong, 5 = excellent. Skills without enough
-          evidence are unscored.
-        </p>
-        {report.skills.map((skill) => (
-          <p className="my-3" key={skill.key}>
-            <strong>
-              {skill.label} · {skill.score === null ? 'Not enough evidence' : `${skill.score}/5`}
-            </strong>
-            <br />
-            {skill.reason}
-          </p>
-        ))}
-      </details>
-      {report.moreImprovements.length > 0 && (
-        <details>
-          <summary className="cursor-pointer font-semibold">Other improvements</summary>
-          {report.moreImprovements.map((item) => (
-            <Improvement key={item.title} item={item} turns={turns} />
-          ))}
-        </details>
-      )}
-      {report.stakeholders && (
-        <details>
-          <summary className="cursor-pointer font-semibold">Boardroom feedback</summary>
-          {report.stakeholders.map((person) => (
-            <div className="mt-4 space-y-2" key={person.participantId}>
-              <h3 className="font-semibold">{person.name}</h3>
-              <p>Concern: {person.mainConcern}</p>
-              <p>Addressed: {person.addressed}</p>
-              <p>Still open: {person.stillOpen}</p>
+    <section className="report-chart-card glass">
+      <header>
+        <div>
+          <p className="section-label">Performance</p>
+          <h2>Call performance at a glance</h2>
+        </div>
+        <small>AI practice feedback · 1–5 skill scale</small>
+      </header>
+      <div className="report-chart-layout">
+        <div className="report-ring" aria-label="Call performance chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                innerRadius="68%"
+                outerRadius="92%"
+                paddingAngle={2}
+                stroke="none"
+                isAnimationActive
+                animationDuration={650}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`${entry.name}-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(_value, _name, item) => item.payload.display}
+                contentStyle={{
+                  borderRadius: 12,
+                  border: '1px solid var(--border)',
+                  background: 'var(--popover)',
+                  fontSize: 12,
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="report-ring-center">
+            <strong>{report.overall.score ?? '—'}</strong>
+            <span>Overall</span>
+          </div>
+        </div>
+        <div className="report-chart-legend">
+          {data.map((entry) => (
+            <div key={entry.name}>
+              <i style={{ background: entry.color }} />
+              <span>{entry.name}</span>
+              <strong>{entry.display}</strong>
             </div>
           ))}
-        </details>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function ReportView({
+  report,
+  turns,
+  branchCount = 0,
+  reportStatus = 'READY',
+  onTimeMachine,
+}: {
+  report: CallReport
+  turns: SavedTurn[]
+  branchCount?: number
+  reportStatus?: string
+  onTimeMachine?: (turnId: string) => void
+}) {
+  return (
+    <div className="session-report-view">
+      <section className="report-summary-card glass">
+        <div>
+          <p className="section-label">
+            {report.evidence.level === 'FULL' ? 'Complete feedback' : 'Partial feedback'}
+          </p>
+          <h2>{report.outcome.label}</h2>
+          <p>{report.summary}</p>
+          <small>{report.outcome.explanation}</small>
+        </div>
+        <div className="report-score">
+          <strong>{report.overall.score ?? '—'}</strong>
+          <span>{report.overall.score === null ? 'Not scored' : 'out of 100'}</span>
+          <em>{report.overall.label}</em>
+        </div>
+      </section>
+      {report.evidence.note && (
+        <div className="report-note">
+          <Clock3 size={17} />
+          <p>{report.evidence.note}</p>
+        </div>
       )}
-      {report.productChecks && (
-        <details>
-          <summary className="cursor-pointer font-semibold">Product fact checks</summary>
-          {report.productChecks.map((check, index) => (
-            <p className="mt-4" key={index}>
-              <strong>{check.verdict}: </strong>
-              {check.claim}
-              <br />
-              {check.explanation}
+      {report.priorityImprovement && (
+        <Improvement
+          item={report.priorityImprovement}
+          turns={turns}
+          onTimeMachine={onTimeMachine}
+        />
+      )}
+      <PerformanceChart report={report} branchCount={branchCount} reportStatus={reportStatus} />
+      <div className="report-detail-grid">
+        {report.strengths.length > 0 && (
+          <section className="report-section glass">
+            <p className="section-label">Keep doing this</p>
+            {report.strengths.map((item) => (
+              <div className="report-strength" key={item.turnId + item.title}>
+                <CheckCircle2 size={18} />
+                <p>
+                  <strong>{item.title}</strong>
+                  <span>{item.reason}</span>
+                </p>
+              </div>
+            ))}
+          </section>
+        )}
+        <section className="report-next glass">
+          <RotateCcw />
+          <div>
+            <p className="section-label">Next practice step</p>
+            <h3>{report.nextStep.label}</h3>
+          </div>
+        </section>
+      </div>
+      {(report.moreImprovements.length > 0 || report.stakeholders || report.productChecks) && (
+        <section className="report-accordions">
+          {report.moreImprovements.length > 0 && (
+            <details>
+              <summary>
+                More improvements <span>{report.moreImprovements.length}</span>
+              </summary>
+              {report.moreImprovements.map((item) => (
+                <Improvement key={item.title} item={item} turns={turns} />
+              ))}
+            </details>
+          )}
+          {report.stakeholders && (
+            <details>
+              <summary>
+                Boardroom feedback <span>{report.stakeholders.length}</span>
+              </summary>
+              {report.stakeholders.map((person) => (
+                <article key={person.participantId}>
+                  <h3>{person.name}</h3>
+                  <p>
+                    <b>Main concern:</b> {person.mainConcern}
+                  </p>
+                  <p>
+                    <b>Addressed:</b> {person.addressed}
+                  </p>
+                  <p>
+                    <b>Still open:</b> {person.stillOpen}
+                  </p>
+                </article>
+              ))}
+            </details>
+          )}
+          {report.productChecks && (
+            <details>
+              <summary>
+                Product fact checks <span>{report.productChecks.length}</span>
+              </summary>
+              {report.productChecks.map((check, index) => (
+                <article key={index}>
+                  <Status value={check.verdict} />
+                  <p>
+                    <b>{check.claim}</b>
+                  </p>
+                  <p>{check.explanation}</p>
+                </article>
+              ))}
+            </details>
+          )}
+        </section>
+      )}
+    </div>
+  )
+}
+
+function Overview({ item, all }: { item: SessionRecord; all: SessionRecord[] }) {
+  const parent = all.find((session) => session.id === item.parent_session_id)
+  const branches = all.filter((session) => session.parent_session_id === item.id)
+  return (
+    <div className="session-overview-grid">
+      <section className="session-info-card glass">
+        <header>
+          <FileText />
+          <div>
+            <p className="section-label">Challenge</p>
+            <h3>{item.title}</h3>
+          </div>
+        </header>
+        <p className="session-description">
+          {item.description || 'No challenge description available.'}
+        </p>
+        <dl>
+          <div>
+            <dt>Type</dt>
+            <dd>{humanize(item.callType)}</dd>
+          </div>
+          <div>
+            <dt>Category</dt>
+            <dd>{item.category}</dd>
+          </div>
+          <div>
+            <dt>Difficulty</dt>
+            <dd>{humanize(item.difficulty)}</dd>
+          </div>
+          <div>
+            <dt>Mode</dt>
+            <dd>{humanize(item.mode)}</dd>
+          </div>
+        </dl>
+        {item.objective && (
+          <div className="session-objective">
+            <Target size={17} />
+            <p>
+              <b>Objective</b>
+              {item.objective}
+            </p>
+          </div>
+        )}
+      </section>
+      <section className="session-info-card glass">
+        <header>
+          <UsersRound />
+          <div>
+            <p className="section-label">Participants</p>
+            <h3>
+              {item.participants.length} buyer persona{item.participants.length === 1 ? '' : 's'}
+            </h3>
+          </div>
+        </header>
+        <div className="participant-stack">
+          {item.participants.length ? (
+            item.participants.map((person) => (
+              <article key={person.id}>
+                <div className="participant-avatar">{person.name.charAt(0)}</div>
+                <div>
+                  <strong>{person.name}</strong>
+                  <span>
+                    {person.designation}
+                    {person.company ? ` · ${person.company}` : ''}
+                  </span>
+                  <small>
+                    {person.communicationStyle} · {person.decisionAuthority}
+                  </small>
+                </div>
+              </article>
+            ))
+          ) : (
+            <p className="session-description">No participant details available.</p>
+          )}
+        </div>
+      </section>
+      <section className="session-info-card session-call-card glass">
+        <header>
+          <Clock3 />
+          <div>
+            <p className="section-label">Session information</p>
+            <h3>{item.parent_session_id ? 'Time Machine branch' : 'Original call'}</h3>
+          </div>
+        </header>
+        <dl>
+          <div>
+            <dt>Owner</dt>
+            <dd>{item.ownerName}</dd>
+          </div>
+          <div>
+            <dt>Started</dt>
+            <dd>{date(item.started_at ?? item.created_at)}</dd>
+          </div>
+          <div>
+            <dt>Ended</dt>
+            <dd>{date(item.ended_at)}</dd>
+          </div>
+          <div>
+            <dt>Duration</dt>
+            <dd>{duration(item.duration_seconds)}</dd>
+          </div>
+          <div>
+            <dt>Call status</dt>
+            <dd>
+              <Status value={item.status} />
+            </dd>
+          </div>
+          <div>
+            <dt>Report</dt>
+            <dd>
+              <Status value={item.report_status} report />
+            </dd>
+          </div>
+        </dl>
+      </section>
+      {(parent || branches.length > 0) && (
+        <section className="session-family glass">
+          <header>
+            <GitBranch />
+            <div>
+              <p className="section-label">Time Machine</p>
+              <h3>Related attempts</h3>
+            </div>
+          </header>
+          {parent && (
+            <p>
+              Original: <strong>{parent.title}</strong> · branch from {item.branch_from_turn_id}
+            </p>
+          )}
+          {branches.map((branch) => (
+            <p key={branch.id}>
+              Branch: <strong>{date(branch.created_at)}</strong> · {humanize(branch.report_status)}
             </p>
           ))}
-        </details>
+        </section>
       )}
-      <section className="rounded-xl bg-muted p-5">
-        <h2 className="mb-2 font-semibold">Your next practice step</h2>
-        <p>{report.nextStep.label}</p>
-      </section>
-      <details>
-        <summary className="cursor-pointer font-semibold">View full transcript</summary>
-        {turns.map((turn) => (
-          <p className="mt-3" key={turn.id}>
-            <strong>
-              {Math.floor(turn.timeInCallSecs / 60)}:
-              {String(Math.floor(turn.timeInCallSecs % 60)).padStart(2, '0')} ·{' '}
-              {turn.speaker === 'user' ? 'You' : 'Buyer'}:{' '}
-            </strong>
-            {turn.text}
+    </div>
+  )
+}
+
+function Transcript({
+  item,
+  highlightedTurnId,
+}: {
+  item: SessionRecord
+  highlightedTurnId?: string
+}) {
+  const participants = new Map(item.participants.map((person) => [person.id, person.name]))
+  if (!item.transcript.length)
+    return (
+      <div className="session-empty">
+        <MessageSquareText />
+        <h2>No transcript available</h2>
+        <p>The voice service did not save any conversation turns.</p>
+      </div>
+    )
+  return (
+    <section className="transcript-panel glass">
+      <header>
+        <div>
+          <p className="section-label">Conversation</p>
+          <h2>{item.transcript.length} transcript turns</h2>
+        </div>
+        <span>{duration(item.duration_seconds)}</span>
+      </header>
+      <ol>
+        {[...item.transcript]
+          .sort((a, b) => a.order - b.order)
+          .map((turn) => {
+            const isUser = turn.speaker === 'user'
+            const speaker = isUser ? 'You' : (participants.get(turn.participantId ?? '') ?? 'Buyer')
+            return (
+              <li
+                key={turn.id}
+                id={`transcript-${turn.id}`}
+                data-speaker={isUser ? 'user' : 'agent'}
+                data-highlighted={turn.id === highlightedTurnId || undefined}
+              >
+                <div>
+                  <strong>{speaker}</strong>
+                  <time>{turnTime(turn.timeInCallSecs)}</time>
+                </div>
+                <p>{turn.text.replace(/^<[^>]+>/, '')}</p>
+              </li>
+            )
+          })}
+      </ol>
+    </section>
+  )
+}
+
+function SessionDetail({
+  item,
+  all,
+  onBack,
+  onRetry,
+  retrying,
+}: {
+  item: SessionRecord
+  all: SessionRecord[]
+  onBack: () => void
+  onRetry: () => void
+  retrying: boolean
+}) {
+  const [tab, setTab] = useState<DetailTab>('overview')
+  const [highlightedTurnId, setHighlightedTurnId] = useState<string>()
+  const openTimeMachine = (turnId: string) => {
+    setHighlightedTurnId(turnId)
+    setTab('transcript')
+    window.setTimeout(() => {
+      document.getElementById(`transcript-${turnId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    })
+  }
+  return (
+    <div className="session-detail-page animate-fade-in">
+      <button className="session-back" onClick={onBack}>
+        <ArrowLeft size={17} /> Back to sessions
+      </button>
+      <header className="session-detail-header">
+        <div>
+          <p className="section-label">Call details</p>
+          <h1>{item.title}</h1>
+          <p>
+            {date(item.started_at ?? item.created_at)} · {duration(item.duration_seconds)}
           </p>
+        </div>
+        <div>
+          <Status value={item.status} />
+          <Status value={item.report_status} report />
+        </div>
+      </header>
+      <nav className="session-tabs" role="tablist" aria-label="Session details">
+        {(['overview', 'report', 'transcript'] as const).map((value) => (
+          <button
+            key={value}
+            role="tab"
+            aria-selected={tab === value}
+            onClick={() => setTab(value)}
+          >
+            {humanize(value)}
+          </button>
         ))}
-      </details>
+      </nav>
+      <div className="session-tab-content" role="tabpanel">
+        {tab === 'overview' && <Overview item={item} all={all} />}
+        {tab === 'report' &&
+          (item.report_status === 'READY' && item.report ? (
+            <ReportView
+              report={item.report}
+              turns={item.transcript}
+              branchCount={all.filter((session) => session.parent_session_id === item.id).length}
+              reportStatus={item.report_status}
+              onTimeMachine={openTimeMachine}
+            />
+          ) : (
+            <div className="session-empty glass">
+              <FileText />
+              <h2>
+                {item.report_status === 'FAILED'
+                  ? 'Report could not be generated'
+                  : 'Report is not ready yet'}
+              </h2>
+              <p>Your saved transcript remains available while the report is prepared.</p>
+              <Button disabled={retrying} onClick={onRetry}>
+                {retrying ? 'Requesting…' : 'Check and retry report'}
+              </Button>
+            </div>
+          ))}
+        {tab === 'transcript' && <Transcript item={item} highlightedTurnId={highlightedTurnId} />}
+      </div>
+    </div>
+  )
+}
+
+function SessionTable({ items, onOpen }: { items: SessionRecord[]; onOpen: (id: string) => void }) {
+  return (
+    <div className="session-table-shell glass">
+      <table className="session-table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Participants</th>
+            <th>Started</th>
+            <th>Duration</th>
+            <th>Call status</th>
+            <th>Report</th>
+            <th>
+              <span className="sr-only">Open</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr
+              key={item.id}
+              tabIndex={0}
+              onClick={() => onOpen(item.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onOpen(item.id)
+                }
+              }}
+            >
+              <td>
+                <strong>{item.title}</strong>
+                <small>
+                  {humanize(item.callType)} · {humanize(item.mode)}
+                </small>
+              </td>
+              <td>
+                <span>
+                  {item.participants.map((person) => person.name).join(', ') || 'No buyer saved'}
+                </span>
+                <small>{item.ownerName}</small>
+              </td>
+              <td>{date(item.started_at ?? item.created_at)}</td>
+              <td>{duration(item.duration_seconds)}</td>
+              <td>
+                <Status value={item.status} />
+              </td>
+              <td>
+                <Status value={item.report_status} report />
+              </td>
+              <td>
+                <ArrowRight size={17} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -154,99 +668,60 @@ export function SessionsPage() {
   const [selected, setSelected] = useState<string | null>(null)
   const sessions = useQuery({
     queryKey: ['sessions', user?.id],
-    queryFn: () => listSessions(user!.id),
+    queryFn: listSessions,
     enabled: Boolean(user),
     refetchInterval: 3_000,
   })
   const retry = useMutation({
     mutationFn: challengeRepository.endCall,
-    onSuccess: () => {
-      void sessions.refetch()
-    },
+    onSuccess: () => void sessions.refetch(),
   })
-  const current = sessions.data?.find((session) => session.id === selected)
-  return (
-    <div className="animate-fade-in mx-auto max-w-4xl">
-      <div className="page-heading">
-        <div>
-          <p className="section-label mb-3">Practice World</p>
-          <h1>{current ? current.title : 'My Sessions'}</h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Your calls, transcripts and coaching reports
-          </p>
-        </div>
-        {current && (
-          <Button variant="secondary" onClick={() => setSelected(null)}>
-            Back to sessions
-          </Button>
-        )}
+  const current = sessions.data?.find((item) => item.id === selected)
+  if (sessions.isPending)
+    return (
+      <div className="session-empty" role="status">
+        <Clock3 />
+        <h2>Loading sessions…</h2>
       </div>
-      {sessions.isPending && <p role="status">Loading sessions…</p>}
-      {sessions.isError && (
-        <div role="alert">
-          <p>Could not load sessions.</p>
-          <Button onClick={() => void sessions.refetch()}>Try again</Button>
+    )
+  if (sessions.isError)
+    return (
+      <div className="session-empty" role="alert">
+        <h2>Could not load sessions</h2>
+        <p>{sessions.error.message}</p>
+        <Button onClick={() => void sessions.refetch()}>Try again</Button>
+      </div>
+    )
+  if (current)
+    return (
+      <SessionDetail
+        item={current}
+        all={sessions.data ?? []}
+        onBack={() => setSelected(null)}
+        onRetry={() => retry.mutate(current.id)}
+        retrying={retry.isPending}
+      />
+    )
+  return (
+    <div className="sessions-page animate-fade-in">
+      <header className="sessions-heading">
+        <div>
+          <p className="section-label">Practice World</p>
+          <h1>My Sessions</h1>
+          <p>Review every practice call, transcript and coaching report.</p>
         </div>
-      )}
-      {retry.isError && <p role="alert">Could not request the report. Please try again.</p>}
-      {current ? (
-        <>
-          <p className="mb-6 text-sm text-muted-foreground">
-            {new Date(current.created_at).toLocaleString()} · {current.mode} · {current.status} ·{' '}
-            {current.duration_seconds ?? 0}s
-          </p>
-          {current.report_status === 'READY' && current.report ? (
-            <ReportView report={current.report} turns={current.transcript} />
-          ) : current.status === 'CANCELLED' ? (
-            <p>The call ended before it connected, so there is no conversation to review.</p>
-          ) : (
-            <section className="space-y-4 rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold">
-                {current.report_status === 'FAILED'
-                  ? 'Report could not be generated'
-                  : 'Preparing your report'}
-              </h2>
-              <p>
-                The transcript is saved when the voice service finishes processing. You can leave
-                this page and return later.
-              </p>
-              <Button disabled={retry.isPending} onClick={() => retry.mutate(current.id)}>
-                {retry.isPending ? 'Requested…' : 'Check and retry report'}
-              </Button>
-            </section>
-          )}
-        </>
+        <div className="sessions-count">
+          <strong>{sessions.data?.length ?? 0}</strong>
+          <span>Total calls</span>
+        </div>
+      </header>
+      {sessions.data?.length ? (
+        <SessionTable items={sessions.data} onOpen={setSelected} />
       ) : (
-        <div className="space-y-3">
-          {sessions.data?.length === 0 && (
-            <p className="py-12 text-muted-foreground">
-              No sessions yet. Start a challenge to practise.
-            </p>
-          )}
-          {sessions.data?.map((session) => (
-            <button
-              key={session.id}
-              className="flex w-full items-center justify-between gap-4 rounded-xl border border-border p-5 text-left hover:bg-muted"
-              onClick={() => setSelected(session.id)}
-            >
-              <span>
-                <strong>{session.title}</strong>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  {new Date(session.created_at).toLocaleString()} · {session.mode} ·{' '}
-                  {session.duration_seconds ?? 0}s
-                </span>
-              </span>
-              <span className="text-sm">
-                {session.report_status === 'READY'
-                  ? 'View report →'
-                  : session.report_status === 'FAILED'
-                    ? 'Retry report'
-                    : session.status === 'CANCELLED'
-                      ? 'Not connected'
-                      : 'Processing…'}
-              </span>
-            </button>
-          ))}
+        <div className="session-empty">
+          <Clock3 />
+          <h2>No sessions yet</h2>
+          <p>Start a challenge to create your first practice call.</p>
         </div>
       )}
     </div>
