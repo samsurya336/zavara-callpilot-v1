@@ -40,16 +40,23 @@ services:
         value: public, max-age=0, must-revalidate
 
   # ---------------------------------------------------------------------------------------------
-  # Client console: React 19 + Vite single-page app. Built with the pinned pnpm via Corepack.
-  # Routes are handled in the browser (React Router), so every path is rewritten to index.html.
+  # Client console: React 19 + Vite single-page app, run as a Node web service.
+  # The build produces dist/; the start command serves it with SPA fallback (every unknown path
+  # returns index.html so React Router handles /dashboard, /sign-in, ... on refresh).
   # ---------------------------------------------------------------------------------------------
   - type: web
     name: callpilot-console
-    runtime: static
+    runtime: node
+    plan: free
     rootDir: apps/client-console
-    buildCommand: corepack enable && corepack pnpm install --frozen-lockfile && corepack pnpm build
-    staticPublishPath: dist
-    pullRequestPreviewsEnabled: true
+    # NODE_ENV=development applies to the install step only. Render sets NODE_ENV=production, which
+    # would make pnpm skip the devDependencies (vite, typescript) the build needs. Vite still emits
+    # a production build.
+    buildCommand: NODE_ENV=development corepack pnpm install --frozen-lockfile && corepack pnpm build
+    # `serve -s` = single-page-app mode. Pinned version, fetched into pnpm's cache at boot.
+    # Swap for `node server.mjs` if a dependency-free in-repo server is added later.
+    startCommand: corepack pnpm dlx serve@14.2.4 -s dist -l $PORT
+    healthCheckPath: /
     envVars:
       # Node 22 line, as required by package.json "engines".
       - key: NODE_VERSION
@@ -60,15 +67,3 @@ services:
         sync: false
       - key: VITE_SUPABASE_PUBLISHABLE_KEY
         sync: false
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      # Vite emits content-hashed filenames under /assets, so they can be cached forever.
-      - path: /assets/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-      - path: /index.html
-        name: Cache-Control
-        value: public, max-age=0, must-revalidate
