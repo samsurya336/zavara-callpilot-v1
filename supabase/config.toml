@@ -27,7 +27,7 @@ enabled = true
 port = 54323
 api_url = "http://127.0.0.1"
 
-[local_smtp]
+[inbucket]
 enabled = true
 port = 54324
 
@@ -72,5 +72,11 @@ import_map = "./functions/deno.json"
 
 # Called by ElevenLabs, authenticated by its HMAC signature instead of a user session.
 [functions.elevenlabs-post-call]
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+# Auth is verified inside the function so it works with the current Supabase
+# publishable-key/session setup.
+[functions.extract-knowledge]
 verify_jwt = false
 import_map = "./functions/deno.json"

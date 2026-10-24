@@ -52,7 +52,7 @@ export function AddKnowledgeDialog({ children }: { children: ReactNode }) {
     event.preventDefault()
     const nextTitleError = title.trim() ? null : 'Enter a title.'
     setTitleError(nextTitleError)
-    if (!file) setFileError((error) => error ?? 'Choose a PDF or TXT file.')
+    if (!file) setFileError((error) => error ?? 'Choose a PDF file.')
     if (nextTitleError || !file) return
     create.mutate({ title: title.trim(), file }, { onSuccess: () => setOpen(false) })
   }
@@ -148,7 +148,7 @@ export function AddKnowledgeDialog({ children }: { children: ReactNode }) {
                     </span>
                   ) : (
                     <>
-                      <span className="mt-3 text-sm font-semibold">Choose a PDF or TXT file</span>
+                      <span className="mt-3 text-sm font-semibold">Choose a PDF file</span>
                       <span id="knowledge-file-hint" className="text-xs text-muted-foreground">
                         One file per entry, up to {formatFileSize(KNOWLEDGE_MAX_FILE_SIZE)}
                       </span>

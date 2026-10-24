@@ -4,7 +4,7 @@ export type KnowledgeStatus = 'processing' | 'failed' | 'ready'
 
 export const KNOWLEDGE_MAX_FILE_SIZE = 10 * 1024 * 1024
 export const KNOWLEDGE_TITLE_MAX_LENGTH = 160
-export const KNOWLEDGE_FILE_ACCEPT = '.pdf,.txt,application/pdf,text/plain'
+export const KNOWLEDGE_FILE_ACCEPT = '.pdf,application/pdf'
 
 export const knowledgeStatusLabels: Record<KnowledgeStatus, string> = {
   ready: 'Ready',
@@ -14,7 +14,6 @@ export const knowledgeStatusLabels: Record<KnowledgeStatus, string> = {
 
 const fileTypes: Partial<Record<string, { mime: string; label: string }>> = {
   pdf: { mime: 'application/pdf', label: 'PDF' },
-  txt: { mime: 'text/plain', label: 'TXT' },
 }
 
 export function knowledgeFileType(fileName: string) {
@@ -34,7 +33,7 @@ export function formatFileSize(bytes: number) {
 export function validateKnowledgeFile(file: File) {
   const type = knowledgeFileType(file.name)
   const reportedType = file.type.split(';')[0]
-  if (!type || (reportedType && reportedType !== type)) return 'Choose a PDF or TXT file.'
+  if (!type || (reportedType && reportedType !== type)) return 'Choose a PDF file.'
   if (file.size === 0) return 'This file is empty.'
   if (file.size > KNOWLEDGE_MAX_FILE_SIZE) {
     return `Choose a file up to ${formatFileSize(KNOWLEDGE_MAX_FILE_SIZE)}.`
