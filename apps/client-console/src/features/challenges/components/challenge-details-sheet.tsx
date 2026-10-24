@@ -182,7 +182,7 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
                   {phase === 'active' &&
                     `${formatClock(secondsLeft ?? 0)} left · Your transcript will be processed after the call.`}
                   {phase === 'ended' &&
-                    'The post-call webhook will deliver the transcript shortly.'}
+                    'Your transcript and report will be ready in about a minute.'}
                   {phase === 'error' && error}
                 </p>
               </div>

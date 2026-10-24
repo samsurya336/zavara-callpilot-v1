@@ -4,6 +4,10 @@ import { challengeRepository, type Challenge } from '../repositories'
 
 export type CallPhase = 'idle' | 'requesting' | 'connecting' | 'active' | 'ended' | 'error'
 
+// The SDK reports "listening" whenever playback briefly runs dry mid-sentence (measured gaps of
+// 20-350 ms), which made the speaking status flicker. Listening is shown only after this quiet spell.
+const SPEAKING_HOLD_MS = 800
+
 /**
  * Runs one voice call for a challenge: opens the server call session, connects to the agent,
  * counts down the challenge length and hangs up at the limit. Server bookkeeping (activate/end)
@@ -117,11 +121,20 @@ export function useChallengeCall(challenge: Challenge) {
   // Leaving mid-call: the provider hangs up the audio, this frees the server session.
   useEffect(() => releaseSession, [releaseSession])
 
+  const [buyerSpeaking, setBuyerSpeaking] = useState(false)
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setBuyerSpeaking(conversation.isSpeaking),
+      conversation.isSpeaking ? 0 : SPEAKING_HOLD_MS,
+    )
+    return () => window.clearTimeout(timer)
+  }, [conversation.isSpeaking])
+
   return {
     phase,
     error,
     secondsLeft,
-    isSpeaking: conversation.isSpeaking,
+    isSpeaking: buyerSpeaking,
     isMuted: conversation.isMuted,
     setMuted: conversation.setMuted,
     start,
