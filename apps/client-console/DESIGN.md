@@ -391,3 +391,27 @@ state says so and never redirects people into an upload flow.
 Until the knowledge table, private storage, and extraction worker exist, the repository keeps
 entries in memory for the current session only. New entries stay Processing; nothing is
 presented as extracted that was not.
+
+## 13. Challenges
+
+The page reads the `challenge` table and the `participant_public` view. It never selects
+`configs`, hidden motivations or objections.
+
+- **Heading:** the standard page heading with a 44px "General Challenges" pill CTA that opens
+  the generate dialog. Below it, a count line names the people and companies as simulated.
+- **Toolbar:** reuses the Knowledge Base search pill and segmented filter (All / One-on-One / Boardroom).
+- **Sections:** Open Challenges (`INTERNAL`) and Knowledge-based Challenges (`KNOWLEDGE_BASE`),
+  separated by a hairline. Grids are three columns, two below 1200px and one below 768px.
+  With no generated challenges, the knowledge section shows an optional-knowledge empty state.
+- **Card:** a `.destination.glass` button with a format icon tile (User or Users), category,
+  title, a two-line description, and chips for difficulty, format and duration. A participant
+  initials stack sits above a hairline at the bottom.
+- **Difficulty:** `.challenge-difficulty` uses the same dot, word and 14% tint as
+  `.knowledge-status`: Easy `--status-normal`, Medium `--status-borderline`, Hard `--status-high`.
+- **Brief sheet:** a 520px `.knowledge-sheet` with the goal, the situation, the fictional
+  product brief, skill tags, participants (personality, speaking style, authority), an
+  Assist/Battle radio-card choice, and an allowance and audio-processing notice that shows
+  the remaining minutes from `account_usage`. Start stays disabled until live calls exist.
+- **Generate dialog:** a `.knowledge-dialog` with a ready-knowledge select, format and difficulty
+  segments, and an optional goal. It calls the `generate-challenge` edge function. With no ready
+  knowledge, it points to the Knowledge Base instead.

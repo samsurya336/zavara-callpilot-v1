@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ChallengesPage } from '@/features/challenges'
 import { KnowledgePage } from '@/features/knowledge'
 import { useUIStore, type Page, type Theme } from '@/stores/ui-store'
 
@@ -147,8 +148,8 @@ function Appearance() {
 export function ConsolePage({ page }: { page: Page }) {
   if (page === 'overview') return <Overview />
   if (page === 'knowledge') return <KnowledgePage />
+  if (page === 'challenges') return <ChallengesPage />
   const emptyStates: Partial<Record<Page, { icon: LucideIcon; message: string }>> = {
-    challenges: { icon: Swords, message: 'No challenges yet' },
     clients: { icon: Building2, message: 'No fictional clients yet' },
     sessions: { icon: History, message: 'No sessions yet' },
   }
