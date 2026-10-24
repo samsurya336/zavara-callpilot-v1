@@ -17,7 +17,7 @@ Deno.test('one-on-one agent uses the lead voice, call limit and signed-URL auth'
   assert.equal(tts.stability, 0.6)
   assert.equal('similarity_boost' in tts, false)
   assert.deepEqual(tts.supported_voices, [])
-  assert.equal(conversation.max_duration_seconds, 240)
+  assert.equal(conversation.max_duration_seconds, 300)
   assert.equal(config.platform_settings.auth.enable_auth, true)
   assert.match(agent.first_message, /^Hi \{\{user_name\}\}, I'm Priya Shah, CFO/)
   assert.match(agent.prompt.prompt, /Needs to cut tooling spend by 15%/)

@@ -1,4 +1,4 @@
-import type { CallSpeaker } from '../_shared/calls.ts'
+import type { CallSpeaker } from './calls.ts'
 
 export interface ProviderTurn {
   role: 'user' | 'agent'

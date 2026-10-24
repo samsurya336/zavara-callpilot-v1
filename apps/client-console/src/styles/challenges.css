@@ -172,6 +172,29 @@
 .challenge-notice[data-short='true'] {
   background: color-mix(in oklch, var(--status-borderline) 14%, transparent);
 }
+.challenge-call-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--glass);
+}
+.challenge-call-status > svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--primary);
+}
+.challenge-call-status[data-phase='active'] {
+  border-color: color-mix(in oklch, var(--status-normal) 45%, var(--border));
+  background: color-mix(in oklch, var(--status-normal) 9%, var(--glass));
+}
+.challenge-call-status[data-phase='error'] > svg {
+  color: var(--destructive);
+}
 .challenge-sheet {
   width: min(520px, 100vw);
 }

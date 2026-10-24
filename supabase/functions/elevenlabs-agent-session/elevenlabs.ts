@@ -1,3 +1,4 @@
+import type { ProviderConversation } from '../_shared/post-call.ts'
 import type { AgentConfig } from './agent-config.ts'
 
 const API_BASE = 'https://api.elevenlabs.io/v1/convai'
@@ -47,6 +48,12 @@ export async function updateAgent(agentId: string, config: AgentConfig) {
 
 export async function deleteAgent(agentId: string) {
   await request(`/agents/${encodeURIComponent(agentId)}`, { method: 'DELETE' })
+}
+
+export async function getConversation(conversationId: string) {
+  return await request<ProviderConversation>(
+    `/conversations/${encodeURIComponent(conversationId)}`,
+  )
 }
 
 export async function getSignedUrl(agentId: string) {

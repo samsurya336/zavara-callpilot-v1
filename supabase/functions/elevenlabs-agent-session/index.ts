@@ -1,4 +1,11 @@
-import { authenticate, corsHeaders, jsonResponse, serviceClient } from '../_shared/index.ts'
+import {
+  authenticate,
+  corsHeaders,
+  jsonResponse,
+  runInBackground,
+  serviceClient,
+} from '../_shared/index.ts'
+import { generateReport, saveConversation } from '../_shared/post-call.ts'
 import {
   type AgentConfig,
   buildAgentConfig,
@@ -8,27 +15,32 @@ import {
   speakingParticipants,
 } from './agent-config.ts'
 import {
+  activateCallSession,
   type AgentRef,
   type CallMode,
   type ChallengeRow,
-  expireStaleSessions,
+  closeCallSessions,
   insertCallSession,
   loadAgentRef,
   loadChallenge,
+  loadEndedConversationId,
   saveAgentRef,
 } from './db.ts'
 import {
   createAgent,
   deleteAgent,
   ElevenLabsError,
+  getConversation,
   getSignedUrl,
   updateAgent,
 } from './elevenlabs.ts'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const MODES: CallMode[] = ['ASSIST', 'BATTLE']
-// After the provider-enforced max duration, an unfinished session stops blocking new calls.
-const STALE_GRACE_MINUTES = 5
+// ElevenLabs usually finishes processing a conversation within seconds of hang-up. Polling stops
+// well inside the Edge Function wall-clock limit, leaving room for the report.
+const SYNC_POLL_MS = 4_000
+const SYNC_ATTEMPTS = 15
 
 type Db = ReturnType<typeof serviceClient>
 
@@ -45,6 +57,35 @@ Deno.serve(async (request) => {
     if (user instanceof Response) return user
 
     const body = await request.json().catch(() => null)
+    if (body?.action === 'activate') {
+      if (
+        typeof body.callSessionId !== 'string' || !UUID.test(body.callSessionId) ||
+        typeof body.conversationId !== 'string' || body.conversationId.length < 3
+      ) {
+        return jsonResponse({ error: 'callSessionId and conversationId are required' }, 400)
+      }
+      const result = await activateCallSession(
+        serviceClient(),
+        user.id,
+        body.callSessionId,
+        body.conversationId,
+      )
+      if (result === 'CONFLICT') {
+        return jsonResponse({ error: 'You already have an active call' }, 409)
+      }
+      if (result === 'NOT_FOUND') return jsonResponse({ error: 'Call session not found' }, 404)
+      return jsonResponse({ active: true })
+    }
+    if (body?.action === 'end') {
+      if (typeof body.callSessionId !== 'string' || !UUID.test(body.callSessionId)) {
+        return jsonResponse({ error: 'callSessionId is required' }, 400)
+      }
+      const db = serviceClient()
+      await closeCallSessions(db, user.id, body.callSessionId)
+      runInBackground(syncEndedCall(db, user.id, body.callSessionId))
+      return jsonResponse({ ended: true })
+    }
+
     const challengeId = body?.challengeId
     if (typeof challengeId !== 'string' || !UUID.test(challengeId)) {
       return jsonResponse({ error: 'challengeId must be a UUID' }, 400)
@@ -69,7 +110,7 @@ Deno.serve(async (request) => {
     ) {
       return jsonResponse({ error: 'Challenge does not have enough participants' }, 422)
     }
-    const mode: CallMode = body.mode ?? challenge.mode ?? 'BATTLE'
+    const mode: CallMode = body.mode ?? 'BATTLE'
 
     // Task 11 guard: check the account allowance and event budget here, before billable work.
 
@@ -93,11 +134,8 @@ Deno.serve(async (request) => {
       console.warn(`No conversation ID for agent ${agent.agentId}; webhook cannot match this call`)
     }
 
-    const now = new Date()
-    await expireStaleSessions(db, user.id, now)
-    const expiresAt = new Date(
-      now.getTime() + (challenge.duration_minutes + STALE_GRACE_MINUTES) * 60_000,
-    )
+    // Starting a call supersedes any call the user left open (closed tab, lost connection).
+    await closeCallSessions(db, user.id)
     const { configs: _configs, ...challengeSnapshot } = challenge
     const callSessionId = await insertCallSession(db, {
       userId: user.id,
@@ -109,7 +147,6 @@ Deno.serve(async (request) => {
         speakers: callSpeakers(participants),
         agentId: agent.agentId,
         configHash: agent.configHash,
-        expiresAt: expiresAt.toISOString(),
       },
     })
     if (!callSessionId) {
@@ -141,6 +178,31 @@ Deno.serve(async (request) => {
     return jsonResponse({ error: 'Could not start the call' }, 500)
   }
 })
+
+// Fallback for a missing or late post-call webhook: once ElevenLabs has processed the conversation,
+// store it and generate the report through the same path the webhook uses. Running both is safe.
+async function syncEndedCall(db: Db, userId: string, callSessionId: string) {
+  const conversationId = await loadEndedConversationId(db, userId, callSessionId)
+  if (!conversationId) return
+
+  for (let attempt = 0; attempt < SYNC_ATTEMPTS; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, SYNC_POLL_MS))
+    let conversation
+    try {
+      conversation = await getConversation(conversationId)
+    } catch (error) {
+      // The call never reached ElevenLabs, so there is nothing to store.
+      if (error instanceof ElevenLabsError && error.status === 404) return
+      throw error
+    }
+    if (conversation.status === 'done' || conversation.status === 'failed') {
+      const savedId = await saveConversation(db, conversation)
+      if (savedId) await generateReport(db, savedId)
+      return
+    }
+  }
+  console.warn(`Conversation ${conversationId} is still processing; leaving it to the webhook`)
+}
 
 // Reuses the challenge's agent while its config is unchanged, patches it after a challenge edit
 // and creates it on first use.

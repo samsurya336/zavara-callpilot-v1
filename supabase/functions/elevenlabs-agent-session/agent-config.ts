@@ -8,6 +8,8 @@ export const BASE_AGENT = {
   temperature: 0.7,
   language: 'en',
   turnTimeoutSeconds: 7,
+  // The browser hangs up at the challenge length; this server cap is only a safety net past it.
+  maxDurationGraceSeconds: 60,
 }
 
 const ROLE_PLAY_RULES = `You are playing buyer-side stakeholders in a sales practice call. The \
@@ -141,7 +143,9 @@ export function buildAgentConfig(
         })),
       },
       turn: { turn_timeout: BASE_AGENT.turnTimeoutSeconds },
-      conversation: { max_duration_seconds: challenge.duration_minutes * 60 },
+      conversation: {
+        max_duration_seconds: challenge.duration_minutes * 60 + BASE_AGENT.maxDurationGraceSeconds,
+      },
     },
     // Signed URLs only, and no overrides: the browser cannot change the prompt or voices.
     platform_settings: { auth: { enable_auth: true } },

@@ -46,6 +46,38 @@ export interface GenerateChallengeInput {
   goal: string
 }
 
+export interface CallSession {
+  callSessionId: string
+  signedUrl: string
+  challenge: {
+    id: string
+    title: string
+    callType: ChallengeCallType
+    durationMinutes: number
+  }
+  participants: Array<{
+    id: string
+    name: string
+    designation: string
+    company: string
+    voiceLabel: string
+    lead: boolean
+  }>
+  dynamicVariables: Record<string, string | number | boolean>
+}
+
+async function functionError(error: unknown, fallback: string) {
+  const context = (error as { context?: Response })?.context
+  if (context) {
+    const body = await context
+      .clone()
+      .json()
+      .catch(() => null)
+    if (typeof body?.error === 'string') return new Error(body.error)
+  }
+  return new Error(fallback)
+}
+
 // Agent configs, hidden motivations and objections stay server-side; only brief fields are read.
 const CHALLENGE_COLUMNS =
   'id, title, description, category, difficulty, call_type, duration_minutes, objective, scenario, product_context, tags, source, knowledge_id, created_at'
@@ -122,5 +154,31 @@ export const challengeRepository = {
     )
     if (error) throw new Error('Could not generate a challenge. Your choices are kept; try again.')
     return data
+  },
+
+  async startCall(challengeId: string) {
+    const { data, error } = await supabase.functions.invoke<CallSession>(
+      'elevenlabs-agent-session',
+      { body: { challengeId } },
+    )
+    if (error) throw await functionError(error, 'Could not prepare the call. Try again.')
+    if (!data?.signedUrl || !data.callSessionId) {
+      throw new Error('The call service returned an incomplete session.')
+    }
+    return data
+  },
+
+  async activateCall(callSessionId: string, conversationId: string) {
+    const { error } = await supabase.functions.invoke('elevenlabs-agent-session', {
+      body: { action: 'activate', callSessionId, conversationId },
+    })
+    if (error) throw await functionError(error, 'Could not connect the call session.')
+  },
+
+  async endCall(callSessionId: string) {
+    const { error } = await supabase.functions.invoke('elevenlabs-agent-session', {
+      body: { action: 'end', callSessionId },
+    })
+    if (error) throw await functionError(error, 'Could not end the call session.')
   },
 }

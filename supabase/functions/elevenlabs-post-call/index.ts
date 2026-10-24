@@ -1,16 +1,14 @@
-import { jsonResponse, serviceClient } from '../_shared/index.ts'
-import { type CallSessionStatus, type CallSpeaker, TABLES } from '../_shared/calls.ts'
+import { jsonResponse, runInBackground, serviceClient } from '../_shared/index.ts'
+import {
+  generateReport,
+  type ProviderConversation,
+  saveConversation,
+} from '../_shared/post-call.ts'
 import { verifySignature } from './signature.ts'
-import { mapTranscript, type ProviderTurn } from './transcript.ts'
 
-interface TranscriptionEvent {
+interface PostCallEvent {
   type: string
-  data: {
-    conversation_id: string
-    status?: string
-    transcript?: ProviderTurn[]
-    metadata?: { start_time_unix_secs?: number; call_duration_secs?: number; cost?: number }
-  }
+  data: ProviderConversation
 }
 
 // Called by ElevenLabs, not a user, so gateway verify_jwt is off and the HMAC signature is the
@@ -31,45 +29,18 @@ Deno.serve(async (request) => {
   }
 
   try {
-    const event = JSON.parse(rawBody) as TranscriptionEvent
+    const event = JSON.parse(rawBody) as PostCallEvent
     if (event.type !== 'post_call_transcription') return jsonResponse({ received: true })
 
-    const { conversation_id: conversationId, metadata } = event.data
     const db = serviceClient()
-    const { data: session, error } = await db
-      .from(TABLES.callSessions)
-      .select('id, metadata')
-      .eq('provider_session_id', conversationId)
-      .maybeSingle()
-    if (error) throw error
-    if (!session) {
-      console.warn(`No call session for ElevenLabs conversation ${conversationId}`)
+    const callSessionId = await saveConversation(db, event.data)
+    if (!callSessionId) {
+      console.warn(`No call session for ElevenLabs conversation ${event.data.conversation_id}`)
       return jsonResponse({ received: true })
     }
-
-    const speakers = (session.metadata?.speakers ?? []) as CallSpeaker[]
-    const start = metadata?.start_time_unix_secs
-    const duration = metadata?.call_duration_secs
-    const status: CallSessionStatus = event.data.status === 'failed' ? 'FAILED' : 'COMPLETED'
-    const { error: updateError } = await db
-      .from(TABLES.callSessions)
-      .update({
-        transcript: mapTranscript(event.data.transcript ?? [], speakers),
-        status,
-        started_at: start ? new Date(start * 1000).toISOString() : null,
-        ended_at: start && duration != null
-          ? new Date((start + duration) * 1000).toISOString()
-          : null,
-        duration_seconds: duration ?? null,
-        usage: {
-          provider: 'elevenlabs',
-          credits: metadata?.cost ?? null,
-          durationSeconds: duration,
-        },
-      })
-      .eq('id', session.id)
-    if (updateError) throw updateError
-
+    // The report takes several seconds, so ElevenLabs gets its 200 first. A failed report is
+    // marked FAILED and retried by the next webhook delivery or end-call sync.
+    runInBackground(generateReport(db, callSessionId))
     return jsonResponse({ received: true })
   } catch (error) {
     console.error(error)

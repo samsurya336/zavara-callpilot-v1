@@ -13,7 +13,6 @@ export function challengeFixture(overrides: Partial<ChallengeRow> = {}): Challen
     scenario: 'Pricing evaluation meeting',
     is_active: true,
     source: 'INTERNAL',
-    mode: 'BATTLE',
     configs: null,
     created_by: null,
     ...overrides,
