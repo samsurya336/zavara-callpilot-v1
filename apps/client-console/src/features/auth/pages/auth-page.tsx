@@ -126,7 +126,7 @@ export function AuthPage({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         </fieldset>
       </form>
       <p className="auth-footer">
-        {isSignUp ? 'Already have an account?' : 'New to Callpilot?'}{' '}
+        {isSignUp ? 'Already have an account?' : 'New to Sales Copilot?'}{' '}
         <Link className="auth-link" to={isSignUp ? '/sign-in' : '/sign-up'}>
           {isSignUp ? 'Sign in' : 'Create an account'}
         </Link>

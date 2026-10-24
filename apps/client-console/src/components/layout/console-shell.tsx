@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import {
-  AudioLines,
   BookOpen,
   Building2,
   ChevronRight,
@@ -21,6 +20,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
+import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -75,14 +75,8 @@ function SidebarContent({
 }) {
   return (
     <>
-      <div className="brand" aria-label="Zavara Callpilot">
-        <div className="brand-mark">
-          <AudioLines size={23} aria-hidden="true" />
-        </div>
-        <div className="nav-label">
-          <span className="brand-name">callpilot</span>
-          <span className="brand-byline">by Zavara</span>
-        </div>
+      <div className="brand" aria-label="Sales Copilot">
+        <Logo />
       </div>
       <nav aria-label="Main navigation" className="navigation">
         <p className="section-label nav-label nav-group-label">Workspace</p>
@@ -153,7 +147,7 @@ function SidebarContent({
 }
 
 export function ConsoleShell({
-  organizationName = 'Zavara Callpilot',
+  organizationName = 'Sales Copilot',
   userName = 'Practice World',
   onSignOut,
   signingOut = false,

@@ -10,14 +10,15 @@ language, not its medical terminology, mobile navigation, or health-specific com
 
 ## 1. Sources of Truth
 
-| Source                                                                    | Owns                                                               |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [Theme CSS](src/styles/theme.css)                                         | Runtime colors, fonts, radii, glass, motion, and Tailwind mappings |
-| [Layout CSS](src/styles/layout.css)                                       | Shell dimensions, spacing, breakpoints, and navigation states      |
-| [Console shell](src/components/layout/console-shell.tsx)                  | Brand, navigation, toolbar, tooltips, and focus behavior           |
-| [Workspace screens](src/features/workspace/console-page.tsx)              | Overview, destination cards, empty states, and appearance settings |
-| [UI components](src/components/ui)                                        | Locally owned shadcn primitives                                    |
-| [Providers](src/app/providers.tsx) and [UI store](src/stores/ui-store.ts) | Theme application and persisted appearance preferences             |
+| Source                                                                           | Owns                                                               |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [Theme CSS](src/styles/theme.css)                                                | Runtime colors, fonts, radii, glass, motion, and Tailwind mappings |
+| [Layout CSS](src/styles/layout.css)                                              | Shell dimensions, spacing, breakpoints, and navigation states      |
+| [Console shell](src/components/layout/console-shell.tsx)                         | Brand, navigation, toolbar, tooltips, and focus behavior           |
+| [Workspace screens](src/features/workspace/console-page.tsx)                     | Overview, destination cards, empty states, and appearance settings |
+| [Knowledge Base](src/features/knowledge) and [its CSS](src/styles/knowledge.css) | Knowledge list, status labels, add dialog, and details sheet       |
+| [UI components](src/components/ui)                                               | Locally owned shadcn primitives                                    |
+| [Providers](src/app/providers.tsx) and [UI store](src/stores/ui-store.ts)        | Theme application and persisted appearance preferences             |
 
 The code defines the currently rendered values. Keep this document and the implementation
 aligned when intentionally changing the design. The original Meridian reference stays separate;
@@ -190,11 +191,11 @@ styles must not resize neighboring elements or introduce horizontal page scrolli
 
 ## 6. Surfaces, Radius, and Elevation
 
-| Surface         | Treatment                                               | Existing use                                          |
-| --------------- | ------------------------------------------------------- | ----------------------------------------------------- |
-| `.glass`        | 20px blur, 150% saturation, glass border, card shadow   | Repeated workspace destination cards                  |
-| `.glass-strong` | 24px blur, 160% saturation, glass border                | Sidebar; does not automatically add a floating shadow |
-| `.glass-sheet`  | 30px blur, 160% saturation, sheet fill and glass border | Available utility, not an implemented modal pattern   |
+| Surface         | Treatment                                               | Existing use                                                       |
+| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| `.glass`        | 20px blur, 150% saturation, glass border, card shadow   | Repeated workspace destination cards                               |
+| `.glass-strong` | 24px blur, 160% saturation, glass border                | Sidebar; does not automatically add a floating shadow              |
+| `.glass-sheet`  | 30px blur, 160% saturation, sheet fill and glass border | Mobile navigation drawer, Knowledge Base dialogs and details sheet |
 
 Light glass is 66% white with a 90% white highlight border. Dark glass is 5.5% white
 with a 9% white border. Strong glass uses 78% white in light mode and 72% `rgb(24 26 31)`
@@ -356,3 +357,37 @@ of protected content. A lookup error is not an empty organisation. After setup, 
 shows the real organisation and account name; its toolbar offers signout with a tooltip.
 The Meridian visual language and feature behavior stay consistent across mobile, tablet,
 and desktop; the navigation presentation and spacing adapt to each screen.
+
+## 12. Knowledge Base
+
+The page follows the `knowledge` model: a title and exactly one PDF or TXT file per entry,
+with file metadata, extracted text, and worker progress. Knowledge is optional; the empty
+state says so and never redirects people into an upload flow.
+
+- **Heading:** the standard page heading with a 44px "Add knowledge" pill CTA and, once
+  entries exist, a factual count line ("3 entries · 1 ready").
+- **Toolbar:** a 44px pill search field on glass and a status filter that reuses the
+  appearance segmented control. Both become full width below 768px; counts hide on phones.
+- **List:** a divided list, not cards. Each row is one button with the 44px file icon tile,
+  title and file name, size (1200px and above), added date (768px and above), status, and a
+  chevron. Below 768px the type, size and date move into one metadata line under the title.
+  Rows use a 12px rounded muted hover on fine pointers only.
+- **Status:** `.knowledge-status` is a dot plus a word on a 14% `color-mix` tint with
+  foreground text: Ready uses `--status-normal`, Processing `--status-low`, Failed
+  `--status-high`. A null `workerProgress` is Ready. The list polls while any entry is processing.
+- **Add dialog:** a centered `.glass-sheet` with 28px radius and the float shadow. It reuses
+  `.auth-fields`, `.auth-input`, and `.auth-error`, names the 10 MB limit, and asks people to
+  upload only authorised material. The file field is a 20px dashed dropzone that becomes a
+  solid file summary once a valid file is chosen. Actions stack full width below 768px.
+- **Details sheet:** a 480px right-hand `.glass-sheet` (full screen on phones) with file,
+  dates, and extracted text sections separated by hairlines. Processing and empty extraction
+  use a muted note; failures use the error treatment with a "Try again" action. Long
+  extractions scroll in a focusable region and preview the first 20,000 characters.
+  "Generate challenges" is enabled only for Ready entries. Delete confirms in an alert dialog
+  that layers above the sheet.
+- **Layers:** knowledge overlays use `--scrim` at z-index 50 and surfaces at 51; the delete
+  confirmation uses 52 and 53. Radix portals each part separately, so never rely on DOM order.
+
+Until the knowledge table, private storage, and extraction worker exist, the repository keeps
+entries in memory for the current session only. New entries stay Processing; nothing is
+presented as extracted that was not.

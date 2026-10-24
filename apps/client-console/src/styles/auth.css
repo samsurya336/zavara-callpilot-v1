@@ -9,28 +9,6 @@
   gap: 12px;
   padding: 32px 40px;
 }
-.auth-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-.auth-wordmark {
-  display: block;
-  font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.15;
-}
-.auth-byline {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
-  color: var(--muted-foreground);
-}
 .auth-main {
   flex: 1;
   display: grid;
