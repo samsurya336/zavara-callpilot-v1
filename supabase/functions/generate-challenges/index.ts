@@ -37,6 +37,7 @@ interface GenerationConfig {
 }
 
 interface Job {
+  requestId: string
   rows: { id: string; slot: Slot; generation: GenerationConfig }[]
   knowledge: { id: string; title: string; content: string }
   difficulty: Difficulty | null
@@ -49,36 +50,105 @@ class RequestError extends Error {
   }
 }
 
+// One JSON line per step. Filter the function's logs by `event` or `requestId`.
+function log(
+  level: 'info' | 'warn' | 'error',
+  event: string,
+  data: Record<string, unknown> = {},
+) {
+  const line = JSON.stringify({ fn: 'generate-challenges', event, ...data })
+  if (level === 'error') console.error(line)
+  else if (level === 'warn') console.warn(line)
+  else console.log(line)
+}
+
+function errorDetail(error: unknown) {
+  if (error instanceof AgenticOrgError) return { message: error.message, status: error.status }
+  if (error instanceof Error) return { name: error.name, message: error.message }
+  if (error && typeof error === 'object') {
+    const { code, message, details, hint } = error as Record<string, unknown>
+    return { code, message, details, hint }
+  }
+  return { message: String(error) }
+}
+
+// Secret names whose values are missing; values are never logged or returned.
+function missingConfig() {
+  return ['AGENTICORG_API_KEY', 'AGENTICORG_CHALLENGE_AGENT_ID'].filter(
+    (name) => !Deno.env.get(name)?.trim(),
+  )
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return jsonResponse({ ok: true })
+  // Configuration check without signing in: reports only which secrets are set.
+  if (request.method === 'GET') {
+    return jsonResponse({
+      configured: missingConfig().length === 0,
+      missing: missingConfig(),
+      baseUrl: Deno.env.get('AGENTICORG_BASE_URL') || 'default',
+    })
+  }
   if (request.method !== 'POST') return jsonResponse({ error: 'Use POST' }, 405)
 
+  const requestId = crypto.randomUUID().slice(0, 8)
   const user = await authenticate(request)
-  if (user instanceof Response) return user
+  if (user instanceof Response) {
+    log('warn', 'unauthenticated', { requestId, status: user.status })
+    return user
+  }
 
   const body = await request.json().catch(() => null)
-  if (!body || typeof body !== 'object') return jsonResponse({ error: 'Invalid JSON body' }, 400)
+  if (!body || typeof body !== 'object') {
+    log('warn', 'invalid_body', { requestId, userId: user.id })
+    return jsonResponse({ error: 'Invalid JSON body' }, 400)
+  }
+  const action = typeof body.retryChallengeId === 'string' ? 'retry' : 'start'
+  log('info', 'request', {
+    requestId,
+    userId: user.id,
+    action,
+    knowledgeId: body.knowledgeId,
+    retryChallengeId: body.retryChallengeId,
+    difficulty: body.difficulty,
+    hasGoal: Boolean(body.goal),
+  })
 
   const agentId = Deno.env.get('AGENTICORG_CHALLENGE_AGENT_ID')
   if (!agenticOrgConfigured(agentId)) {
-    return jsonResponse({ error: 'Challenge generation is not configured yet.' }, 503)
+    const missing = missingConfig()
+    log('error', 'not_configured', { requestId, missing })
+    return jsonResponse(
+      { error: `Challenge generation is not configured yet (missing ${missing.join(', ')}).` },
+      503,
+    )
   }
 
   try {
     const db = serviceClient()
     await failStaleRuns(db, user.id)
-    const result = typeof body.retryChallengeId === 'string'
-      ? await retry(db, user.id, agentId!, body.retryChallengeId)
-      : await start(db, user.id, agentId!, body)
+    const result = action === 'retry'
+      ? await retry(db, user.id, agentId!, body.retryChallengeId, requestId)
+      : await start(db, user.id, agentId!, body, requestId)
+    log('info', 'accepted', { requestId, ...result })
     return jsonResponse({ status: 'PROCESSING', ...result }, 202)
   } catch (error) {
-    if (error instanceof RequestError) return jsonResponse({ error: error.message }, error.status)
-    console.error(error)
+    if (error instanceof RequestError) {
+      log('warn', 'rejected', { requestId, status: error.status, message: error.message })
+      return jsonResponse({ error: error.message }, error.status)
+    }
+    log('error', 'start_failed', { requestId, error: errorDetail(error) })
     return jsonResponse({ error: 'Could not start challenge generation. Try again.' }, 500)
   }
 })
 
-async function start(db: Db, userId: string, agentId: string, body: Record<string, unknown>) {
+async function start(
+  db: Db,
+  userId: string,
+  agentId: string,
+  body: Record<string, unknown>,
+  requestId: string,
+) {
   const { knowledgeId, difficulty = null, goal } = body
   if (typeof knowledgeId !== 'string' || !UUID.test(knowledgeId)) {
     throw new RequestError(400, 'knowledgeId must be a UUID')
@@ -94,9 +164,19 @@ async function start(db: Db, userId: string, agentId: string, body: Record<strin
     : null
   const knowledge = await loadKnowledge(db, userId, knowledgeId)
 
+  log('info', 'knowledge_loaded', {
+    requestId,
+    knowledgeId,
+    title: knowledge.title,
+    contentChars: knowledge.content.length,
+  })
+
   // Repeated clicks join the run already in progress instead of starting another.
   const inFlight = await inFlightIds(db, knowledgeId)
-  if (inFlight.length > 0) return { challengeIds: inFlight }
+  if (inFlight.length > 0) {
+    log('info', 'joined_in_flight', { requestId, challengeIds: inFlight })
+    return { challengeIds: inFlight }
+  }
 
   const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString()
   const { count, error: countError } = await db
@@ -107,6 +187,7 @@ async function start(db: Db, userId: string, agentId: string, body: Record<strin
     .gte('created_at', since)
   if (countError) throw countError
   const limit = Number(Deno.env.get('CHALLENGE_GENERATION_DAILY_LIMIT')) || DEFAULT_DAILY_LIMIT
+  log('info', 'daily_usage', { requestId, generatedToday: count ?? 0, limit })
   if ((count ?? 0) + SLOTS.length > limit) {
     throw new RequestError(
       429,
@@ -141,11 +222,15 @@ async function start(db: Db, userId: string, agentId: string, body: Record<strin
     .select('id, configs')
   if (error) {
     // A parallel request inserted its run first; join it.
-    if (error.code === '23505') return { challengeIds: await inFlightIds(db, knowledgeId) }
+    if (error.code === '23505') {
+      log('info', 'joined_parallel_run', { requestId })
+      return { challengeIds: await inFlightIds(db, knowledgeId) }
+    }
     throw error
   }
 
   const job: Job = {
+    requestId,
     knowledge,
     difficulty: difficulty as Difficulty | null,
     goal: trimmedGoal,
@@ -154,11 +239,21 @@ async function start(db: Db, userId: string, agentId: string, body: Record<strin
       return { id: row.id, slot: slotFor(generation.slot)!, generation }
     }),
   }
+  log('info', 'placeholders_created', {
+    requestId,
+    rows: job.rows.map((row) => ({ id: row.id, slot: row.slot.slot })),
+  })
   runInBackground(generate(db, agentId, job))
   return { challengeIds: job.rows.map((row) => row.id) }
 }
 
-async function retry(db: Db, userId: string, agentId: string, challengeId: string) {
+async function retry(
+  db: Db,
+  userId: string,
+  agentId: string,
+  challengeId: string,
+  requestId: string,
+) {
   if (!UUID.test(challengeId)) throw new RequestError(400, 'retryChallengeId must be a UUID')
   const { data: row, error } = await db
     .from('challenge')
@@ -203,7 +298,9 @@ async function retry(db: Db, userId: string, agentId: string, challengeId: strin
   }
   if (claimed.length === 0) return { challengeIds: [row.id] }
 
+  log('info', 'retry_claimed', { requestId, challengeId: row.id, attempt: next.attempts })
   runInBackground(generate(db, agentId, {
+    requestId,
     knowledge,
     difficulty: next.difficulty,
     goal: next.goal,
@@ -255,6 +352,7 @@ async function failStaleRuns(db: Db, userId: string) {
 // One agent call designs every pending slot. Valid challenges are saved; the rest get one more
 // call while time allows, then are marked FAILED so the user can retry them.
 async function generate(db: Db, agentId: string, job: Job) {
+  const { requestId } = job
   const deadline = Date.now() + BACKGROUND_BUDGET_MS
   let pending = job.rows
   let failure = 'The generated challenge was incomplete.'
@@ -281,27 +379,51 @@ async function generate(db: Db, agentId: string, job: Job) {
 
       let runId: string | null = null
       let parsed: ParsedOutput
+      const startedAt = Date.now()
+      log('info', 'agent_call', {
+        requestId,
+        attempt: attempt + 1,
+        slots: request.slots.map((slot) => slot.slot),
+        avoidTitles: avoidTitles.length,
+        timeoutMs: remaining - 5_000,
+      })
       try {
         const run = await runAgent(agentId, buildAgentInput(request), remaining - 5_000)
         runId = run.runId
+        log('info', 'agent_response', {
+          requestId,
+          runId,
+          runStatus: run.status,
+          ms: Date.now() - startedAt,
+          outputType: typeof run.output,
+        })
         parsed = parseAgentOutput(run.output, request)
+        if (parsed.kind === 'unreadable') {
+          const raw = typeof run.output === 'string' ? run.output : JSON.stringify(run.output)
+          log('error', 'agent_output_unreadable', { requestId, runId, output: raw?.slice(0, 1500) })
+        }
       } catch (error) {
-        console.error('Challenge generation agent failed', error)
+        log('error', 'agent_failed', {
+          requestId,
+          ms: Date.now() - startedAt,
+          error: errorDetail(error),
+        })
         failure = agentFailure(error)
         continue
       }
 
       if (parsed.kind === 'not_enough_information') {
+        log('warn', 'not_enough_information', { requestId, runId })
         failure = 'This document does not have enough product information to build a challenge.'
         break
       }
-      if (parsed.kind === 'unreadable') {
-        console.error(`Challenge generation run ${runId} returned no challenges`)
-        continue
-      }
-      for (const { slot, reason } of parsed.invalid) {
-        console.warn(`Challenge generation run ${runId}, slot ${slot}: ${reason}`)
-      }
+      if (parsed.kind === 'unreadable') continue
+      log(parsed.invalid.length > 0 ? 'warn' : 'info', 'agent_output_checked', {
+        requestId,
+        runId,
+        valid: parsed.valid.map((item) => item.slot),
+        invalid: parsed.invalid,
+      })
 
       const saved = new Set<string>()
       for (const generated of parsed.valid) {
@@ -310,20 +432,39 @@ async function generate(db: Db, agentId: string, job: Job) {
           await saveChallenge(db, row.id, generated, { ...row.generation, runId })
           saved.add(row.id)
           avoidTitles.push(generated.challenge.title)
+          log('info', 'challenge_saved', {
+            requestId,
+            challengeId: row.id,
+            slot: generated.slot,
+            title: generated.challenge.title,
+          })
         } catch (error) {
-          console.error(`Could not save generated challenge ${row.id}`, error)
+          log('error', 'save_failed', { requestId, challengeId: row.id, error: errorDetail(error) })
         }
       }
       pending = pending.filter((row) => !saved.has(row.id))
     }
+  } catch (error) {
+    log('error', 'generation_crashed', { requestId, error: errorDetail(error) })
+    throw error
   } finally {
     if (pending.length > 0) {
+      log('warn', 'marked_failed', {
+        requestId,
+        challengeIds: pending.map((row) => row.id),
+        reason: failure,
+      })
       const { error } = await db
         .from('challenge')
         .update({ generation_status: 'FAILED', generation_error: failure })
         .in('id', pending.map((row) => row.id))
         .eq('generation_status', 'PROCESSING')
-      if (error) console.error('Could not mark challenge generation as failed', error)
+      if (error) log('error', 'mark_failed_error', { requestId, error: errorDetail(error) })
+    } else {
+      log('info', 'generation_done', {
+        requestId,
+        ms: BACKGROUND_BUDGET_MS - (deadline - Date.now()),
+      })
     }
   }
 }

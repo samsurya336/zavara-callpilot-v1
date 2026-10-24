@@ -69,14 +69,19 @@ export interface CallSession {
   dynamicVariables: Record<string, string | number | boolean>
 }
 
-async function functionError(error: unknown, fallback: string) {
+async function functionError(error: unknown, fallback: string, name = 'edge-function') {
   const context = (error as { context?: Response })?.context
   if (context) {
     const body = await context
       .clone()
       .json()
       .catch(() => null)
+    // Logged so a failing click shows the real status and server message in the console.
+    console.error(`[${name}] HTTP ${context.status}`, body)
     if (typeof body?.error === 'string') return new Error(body.error)
+  } else {
+    // No response at all: network error, CORS, or the function is not deployed/reachable.
+    console.error(`[${name}] request failed`, error)
   }
   return new Error(fallback)
 }
@@ -157,6 +162,7 @@ export const challengeRepository = {
 
   // Starts background generation of three challenges and returns their placeholder IDs.
   async generate(input: GenerateChallengeInput) {
+    console.info('[generate-challenges] start', input)
     const { data, error } = await supabase.functions.invoke<{ challengeIds: string[] }>(
       'generate-challenges',
       { body: input },
@@ -165,15 +171,23 @@ export const challengeRepository = {
       throw await functionError(
         error,
         'Could not generate challenges. Your choices are kept; try again.',
+        'generate-challenges',
       )
+    console.info('[generate-challenges] accepted', data)
     return data
   },
 
   async retryGeneration(challengeId: string) {
+    console.info('[generate-challenges] retry', challengeId)
     const { error } = await supabase.functions.invoke('generate-challenges', {
       body: { retryChallengeId: challengeId },
     })
-    if (error) throw await functionError(error, 'Could not retry this challenge. Try again.')
+    if (error)
+      throw await functionError(
+        error,
+        'Could not retry this challenge. Try again.',
+        'generate-challenges',
+      )
   },
 
   async startCall(challengeId: string) {
