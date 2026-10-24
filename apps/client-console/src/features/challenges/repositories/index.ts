@@ -5,6 +5,7 @@ export type ChallengeDifficulty = 'EASY' | 'MEDIUM' | 'HARD'
 export type ChallengeCallType = Enums<'call_type'>
 export type ChallengeSource = Enums<'challenge_source'>
 export type CallMode = Enums<'call_mode'>
+export type GenerationStatus = Enums<'challenge_generation_status'>
 
 export interface ChallengeParticipant {
   id: string
@@ -30,7 +31,10 @@ export interface Challenge {
   tags: string[]
   source: ChallengeSource
   knowledgeId: string | null
+  generationStatus: GenerationStatus
+  generationError: string | null
   createdAt: string
+  updatedAt: string
   participants: ChallengeParticipant[]
 }
 
@@ -41,22 +45,35 @@ export interface AccountUsage {
 
 export interface GenerateChallengeInput {
   knowledgeId: string
-  callType: ChallengeCallType
   difficulty: ChallengeDifficulty | null
   goal: string
 }
 
+async function functionError(error: unknown, fallback: string) {
+  const context = (error as { context?: Response })?.context
+  if (context) {
+    const body = await context
+      .clone()
+      .json()
+      .catch(() => null)
+    if (typeof body?.error === 'string') return new Error(body.error)
+  }
+  return new Error(fallback)
+}
+
 // Agent configs, hidden motivations and objections stay server-side; only brief fields are read.
 const CHALLENGE_COLUMNS =
-  'id, title, description, category, difficulty, call_type, duration_minutes, objective, scenario, product_context, tags, source, knowledge_id, created_at'
+  'id, title, description, category, difficulty, call_type, duration_minutes, objective, scenario, product_context, tags, source, knowledge_id, generation_status, generation_error, created_at, updated_at'
 
 export const challengeRepository = {
   async list(userId: string): Promise<Challenge[]> {
     const { data: rows, error } = await supabase
       .from('challenge')
       .select(CHALLENGE_COLUMNS)
-      .eq('is_active', true)
-      .or(`source.eq.INTERNAL,created_by.eq.${userId}`)
+      // Open Challenges, plus the user's own: ready ones and those still generating or failed.
+      .or(
+        `and(source.eq.INTERNAL,is_active.eq.true),and(created_by.eq.${userId},or(is_active.eq.true,generation_status.neq.READY))`,
+      )
       .order('created_at', { ascending: false })
       .order('id')
     if (error) throw error
@@ -88,7 +105,10 @@ export const challengeRepository = {
       tags: row.tags,
       source: row.source,
       knowledgeId: row.knowledge_id,
+      generationStatus: row.generation_status,
+      generationError: row.generation_error,
       createdAt: row.created_at,
+      updatedAt: row.updated_at,
       participants: people
         .filter((person) => person.challenge_id === row.id)
         .map((person) => ({
@@ -115,12 +135,24 @@ export const challengeRepository = {
       : null
   },
 
+  // Starts background generation of three challenges and returns their placeholder IDs.
   async generate(input: GenerateChallengeInput) {
-    const { data, error } = await supabase.functions.invoke<{ challengeId: string }>(
-      'generate-challenge',
+    const { data, error } = await supabase.functions.invoke<{ challengeIds: string[] }>(
+      'generate-challenges',
       { body: input },
     )
-    if (error) throw new Error('Could not generate a challenge. Your choices are kept; try again.')
+    if (error)
+      throw await functionError(
+        error,
+        'Could not generate challenges. Your choices are kept; try again.',
+      )
     return data
+  },
+
+  async retryGeneration(challengeId: string) {
+    const { error } = await supabase.functions.invoke('generate-challenges', {
+      body: { retryChallengeId: challengeId },
+    })
+    if (error) throw await functionError(error, 'Could not retry this challenge. Try again.')
   },
 }
