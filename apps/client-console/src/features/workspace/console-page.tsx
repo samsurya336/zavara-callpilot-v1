@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { KnowledgePage } from '@/features/knowledge'
 import { useUIStore, type Page, type Theme } from '@/stores/ui-store'
 
 export const pageTitles: Record<Page, string> = {
@@ -145,10 +146,10 @@ function Appearance() {
 
 export function ConsolePage({ page }: { page: Page }) {
   if (page === 'overview') return <Overview />
+  if (page === 'knowledge') return <KnowledgePage />
   const emptyStates: Partial<Record<Page, { icon: LucideIcon; message: string }>> = {
     challenges: { icon: Swords, message: 'No challenges yet' },
     clients: { icon: Building2, message: 'No fictional clients yet' },
-    knowledge: { icon: BookOpen, message: 'No knowledge items yet' },
     sessions: { icon: History, message: 'No sessions yet' },
   }
   const empty = emptyStates[page]
@@ -157,7 +158,7 @@ export function ConsolePage({ page }: { page: Page }) {
       <div className="page-heading">
         <div>
           <p className="section-label mb-3">
-            {page === 'settings' || page === 'knowledge' ? 'Workspace' : 'Practice World'}
+            {page === 'settings' ? 'Workspace' : 'Practice World'}
           </p>
           <h1>{pageTitles[page]}</h1>
         </div>

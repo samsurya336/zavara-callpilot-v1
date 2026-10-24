@@ -65,3 +65,12 @@ enabled = true
 [functions.list-users-organizations]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.elevenlabs-agent-session]
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+# Called by ElevenLabs, authenticated by its HMAC signature instead of a user session.
+[functions.elevenlabs-post-call]
+verify_jwt = false
+import_map = "./functions/deno.json"

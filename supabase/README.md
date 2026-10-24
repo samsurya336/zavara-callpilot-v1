@@ -171,6 +171,99 @@ in `functions/_shared/`; frontend code must not import Deno modules. For a focus
 corepack pnpm dlx deno check --config ../../supabase/functions/deno.json ../../supabase/functions/list-users-organizations/index.ts
 ```
 
+## Voice Call Edge Functions
+
+[elevenlabs-agent-session](functions/elevenlabs-agent-session/index.ts) starts a practice call.
+It accepts `POST { "challengeId": "uuid", "mode": "ASSIST" | "BATTLE" }` (mode defaults to the
+challenge's), validates the bearer session like the diagnostic function, and returns:
+
+```json
+{
+  "callSessionId": "uuid",
+  "signedUrl": "wss://api.elevenlabs.io/...",
+  "mode": "BATTLE",
+  "challenge": {
+    "id": "uuid",
+    "title": "The Price Negotiator",
+    "callType": "ONE_ON_ONE",
+    "durationMinutes": 4
+  },
+  "participants": [
+    {
+      "id": "uuid",
+      "name": "Priya Shah",
+      "designation": "CFO",
+      "company": "Northwind",
+      "voiceLabel": "Priya",
+      "lead": true
+    }
+  ],
+  "dynamicVariables": { "user_name": "Example User" }
+}
+```
+
+Errors are `{ "error": "message" }`: 400 bad body, 401 no session, 404 missing/inactive challenge
+or another user's knowledge-based challenge, 409 an active call already exists, 422 not enough
+participants, 502 ElevenLabs failed. Hidden motivations and objections are never returned.
+
+Each challenge gets its own ElevenLabs agent, created on its first call start; nobody creates
+agents in the dashboard. The function combines `BASE_AGENT` and the shared role-play rules in
+[agent-config.ts](functions/elevenlabs-agent-session/agent-config.ts) with the challenge's persona,
+participant voices (Boardroom stakeholders become multi-voice labels) and `duration_minutes` as
+the provider-enforced call limit. It stores `{ agentId, configHash }` in
+`challenges.configs.elevenlabs`, reuses the agent while the hash matches and patches it after a
+challenge or base-setting change. Agents accept signed URLs only and allow no client overrides, so
+the browser cannot read or change the persona. `product_context` is deliberately not given to
+buyers.
+
+The call itself runs over a WebSocket between the browser and ElevenLabs. The client needs
+`@elevenlabs/react` (not installed yet):
+
+```ts
+const conversation = useConversation({ onMessage, onError });
+
+await navigator.mediaDevices.getUserMedia({ audio: true });
+const { data, error } = await supabase.functions.invoke(
+  "elevenlabs-agent-session",
+  {
+    body: { challengeId, mode },
+  },
+);
+if (error) throw error; // FunctionsHttpError: read the message with `await error.context.json()`
+await conversation.startSession({
+  signedUrl: data.signedUrl,
+  connectionType: "websocket",
+  dynamicVariables: data.dynamicVariables,
+});
+```
+
+Request a new signed URL for every call. Sessions start as `CREATED`; an unfinished session stops
+blocking new calls after its duration plus five minutes.
+
+[elevenlabs-post-call](functions/elevenlabs-post-call/index.ts) receives ElevenLabs post-call
+webhooks, verifies the `ElevenLabs-Signature` HMAC and writes the transcript, status, timing and
+credits to the call session matched by `provider_session_id`. Saved turns are
+`{ id, order, speaker, participantId, text, timeInCallSecs }` with stable `turn-<n>` IDs. Configure
+the webhook in ElevenLabs workspace settings; locally it needs a tunnel such as
+`cloudflared tunnel --url http://127.0.0.1:54321`, then `<tunnel>/functions/v1/elevenlabs-post-call`.
+
+Both functions use the service-role client so they do not depend on browser table policies. Table
+names live in [calls.ts](functions/_shared/calls.ts) and columns in
+[db.ts](functions/elevenlabs-agent-session/db.ts); align them with the call feature migration. The
+functions expect `participants.voice_configs` as `{ voiceId, stability?, similarityBoost?, speed? }`,
+participants ordered lead first by `created_at`, and a unique index allowing one `CREATED`/`ACTIVE`
+call session per user.
+
+Copy [functions/.env.example](functions/.env.example) to `functions/.env` for
+`corepack pnpm supabase:functions`. Checks, from `supabase/functions`:
+
+```sh
+npx -y deno check --config deno.json elevenlabs-agent-session/index.ts elevenlabs-post-call/index.ts
+npx -y deno test --config deno.json --allow-env elevenlabs-agent-session elevenlabs-post-call
+# Creates and deletes a real agent; needs the API key and default voice in the environment.
+ELEVENLABS_LIVE=1 npx -y deno test --config deno.json --allow-env --allow-net elevenlabs-agent-session/elevenlabs.live.test.ts
+```
+
 ## Team Migration Workflow
 
 All commands below run in `apps/client-console`:
@@ -218,6 +311,9 @@ corepack pnpm supabase link --project-ref YOUR_PROJECT_REF
 corepack pnpm supabase db push --dry-run
 corepack pnpm supabase db push
 corepack pnpm supabase functions deploy list-users-organizations
+corepack pnpm supabase secrets set --env-file ../../supabase/functions/.env
+corepack pnpm supabase functions deploy elevenlabs-agent-session
+corepack pnpm supabase functions deploy elevenlabs-post-call
 ```
 
 Enter credentials directly in your terminal when prompted. In the remote Auth dashboard,
