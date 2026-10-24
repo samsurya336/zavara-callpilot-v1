@@ -4,7 +4,7 @@ import { CircleAlert, Info, Loader2, Mic, MicOff, PhoneOff, Play, Target, X } fr
 import { useUIStore } from '@/stores/ui-store'
 import { Button } from '@/components/ui/button'
 import { useAccountUsage, useChallengeCall } from '../hooks'
-import type { Challenge } from '../repositories'
+import type { Challenge, TimeMachineInput, TimeMachineContext } from '../repositories'
 import { callTypeLabels, formatMinutes, initials } from '../services'
 import { DifficultyLabel } from './challenge-card'
 
@@ -32,13 +32,21 @@ function formatClock(seconds: number) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
 
-function ChallengeDetails({ challenge }: { challenge: Challenge }) {
+function ChallengeDetails({
+  challenge,
+  branch,
+  transcript,
+}: {
+  challenge: Challenge
+  branch?: TimeMachineInput
+  transcript?: TimeMachineContext['transcript']
+}) {
   const setPage = useUIStore((state) => state.setPage)
-  const call = useChallengeCall(challenge)
+  const call = useChallengeCall(challenge, branch)
   const { phase, error, secondsLeft } = call
   const boardroom = challenge.callType === 'BOARDROOM'
   // Closing the sheet unmounts the provider and hangs up, so only the Close button may do it mid-call.
-  const live = phase === 'connecting' || phase === 'active'
+  const live = phase === 'requesting' || phase === 'connecting' || phase === 'active'
   const keepOpen = (event: Event) => {
     if (live) event.preventDefault()
   }
@@ -51,7 +59,11 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
     >
       <header className="knowledge-sheet-header">
         <p className="section-label mb-3">
-          {challenge.source === 'INTERNAL' ? 'Open Challenge' : 'Knowledge-based Challenge'}
+          {branch
+            ? 'Time Machine · Try a different answer'
+            : challenge.source === 'INTERNAL'
+              ? 'Open Challenge'
+              : 'Knowledge-based Challenge'}
         </p>
         <Dialog.Title className="knowledge-dialog-title pr-14">{challenge.title}</Dialog.Title>
         <Dialog.Description className="mt-2 text-sm text-muted-foreground">
@@ -75,6 +87,41 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
         </Dialog.Close>
       </header>
       <div className="knowledge-sheet-body">
+        {branch && (
+          <section
+            className="knowledge-sheet-section"
+            aria-labelledby="previous-transcript-heading"
+          >
+            <h3 id="previous-transcript-heading" className="mb-3 text-base font-semibold">
+              Previous conversation
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Continue just before your selected answer. Give a new answer when the call connects.
+            </p>
+            <ol className="space-y-3 text-sm">
+              {transcript?.map((turn) => (
+                <li key={turn.id}>
+                  <strong>
+                    {turn.speaker === 'user'
+                      ? 'You'
+                      : (challenge.participants.find((p) => p.id === turn.participantId)?.name ??
+                        'Buyer')}
+                    :{' '}
+                  </strong>
+                  {turn.text}
+                </li>
+              ))}
+            </ol>
+            {!transcript?.length && (
+              <p className="text-sm text-muted-foreground">
+                Your first answer is the starting point.
+              </p>
+            )}
+            <p className="mt-4 rounded-xl bg-muted p-3 text-sm font-medium">
+              Your new answer starts here
+            </p>
+          </section>
+        )}
         <section className="knowledge-sheet-section" aria-labelledby="challenge-goal-heading">
           <h3 id="challenge-goal-heading" className="sr-only">
             Goal
@@ -238,7 +285,13 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
             ) : (
               <Play aria-hidden="true" />
             )}
-            {phase === 'error' ? 'Try Again' : phase === 'ended' ? 'Start Again' : 'Start Call'}
+            {phase === 'error'
+              ? 'Try Again'
+              : phase === 'ended'
+                ? 'Start Again'
+                : branch
+                  ? 'Continue Call'
+                  : 'Start Call'}
           </Button>
         )}
       </footer>
@@ -249,8 +302,12 @@ function ChallengeDetails({ challenge }: { challenge: Challenge }) {
 export function ChallengeDetailsSheet({
   challenge,
   onClose,
+  branch,
+  transcript,
 }: {
   challenge?: Challenge
+  branch?: TimeMachineInput
+  transcript?: TimeMachineContext['transcript']
   onClose: () => void
 }) {
   return (
@@ -264,7 +321,12 @@ export function ChallengeDetailsSheet({
         <Dialog.Overlay className="knowledge-overlay" />
         {challenge && (
           <ConversationProvider>
-            <ChallengeDetails key={challenge.id} challenge={challenge} />
+            <ChallengeDetails
+              key={`${challenge.id}:${branch?.parentSessionId ?? ''}:${branch?.branchFromTurnId ?? ''}`}
+              challenge={challenge}
+              branch={branch}
+              transcript={transcript}
+            />
           </ConversationProvider>
         )}
       </Dialog.Portal>

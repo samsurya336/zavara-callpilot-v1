@@ -1,3 +1,4 @@
+import type { TranscriptTurn } from '../_shared/transcript.ts'
 import type { serviceClient } from '../_shared/index.ts'
 import {
   type CallSessionStatus,
@@ -160,11 +161,14 @@ export interface NewCallSession {
   challengeId: string
   mode: CallMode
   providerSessionId: string | null
+  parentSessionId?: string
+  branchFromTurnId?: string
   metadata: {
     snapshot: { challenge: Omit<ChallengeRow, 'configs'>; participants: ParticipantRow[] }
     speakers: CallSpeaker[]
     agentId: string
     configHash: string
+    branchPrefix?: TranscriptTurn[]
   }
 }
 
@@ -174,6 +178,8 @@ export async function insertCallSession(db: Db, session: NewCallSession) {
     .from(TABLES.callSessions)
     .insert({
       user_id: session.userId,
+      parent_session_id: session.parentSessionId,
+      branch_from_turn_id: session.branchFromTurnId,
       challenge_id: session.challengeId,
       status: 'CREATED' satisfies CallSessionStatus,
       mode: session.mode,

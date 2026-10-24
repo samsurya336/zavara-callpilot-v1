@@ -20,6 +20,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
+import { TimeMachineCallHost } from '@/features/challenges/time-machine'
 import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -187,6 +188,7 @@ export function ConsoleShell({
 
   return (
     <TooltipProvider delayDuration={200}>
+      <TimeMachineCallHost />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>

@@ -5,7 +5,7 @@ export interface SavedTurn {
   id: string
   speaker: 'user' | 'agent'
   text: string
-  timeInCallSecs: number
+  timeInCallSecs: number | null
 }
 
 export async function listSessions(userId: string) {

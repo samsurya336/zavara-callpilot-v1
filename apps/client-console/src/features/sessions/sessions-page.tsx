@@ -3,13 +3,74 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks'
 import { challengeRepository } from '@/features/challenges/repositories'
+import { openTimeMachineCall } from '@/features/challenges/time-machine-store'
 import { listSessions, type SavedTurn } from './repository'
 import type { CallReport, ReportImprovement } from './types'
 
+function TimeMachineTest({ sessionId, turns }: { sessionId: string; turns: SavedTurn[] }) {
+  const answers = turns.filter((turn) => turn.speaker === 'user')
+  const [turnId, setTurnId] = useState('')
+  const selectedTurnId = answers.some((turn) => turn.id === turnId) ? turnId : answers[0]?.id
+  if (!selectedTurnId) return null
+
+  return (
+    <section className="mb-6 space-y-3 rounded-xl border border-border p-5">
+      <h2 className="font-semibold">Test Time Machine</h2>
+      <label className="block text-sm" htmlFor="time-machine-answer">
+        Choose an answer to retry
+      </label>
+      <select
+        id="time-machine-answer"
+        className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+        value={selectedTurnId}
+        onChange={(event) => setTurnId(event.target.value)}
+      >
+        {answers.map((turn) => (
+          <option key={turn.id} value={turn.id}>
+            {turn.id} · {turn.text}
+          </option>
+        ))}
+      </select>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          openTimeMachineCall({ parentSessionId: sessionId, branchFromTurnId: selectedTurnId })
+        }
+      >
+        Test Time Machine
+      </Button>
+    </section>
+  )
+}
+
+function timestamp(seconds: number | null) {
+  if (seconds === null || !Number.isFinite(seconds) || seconds < 0) return 'Time unavailable'
+  const whole = Math.floor(seconds)
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
+}
+
 function Improvement({ item, turns }: { item: ReportImprovement; turns: SavedTurn[] }) {
+  const [showEvidence, setShowEvidence] = useState(false)
+  const evidence = turns.filter((turn) => item.turnIds.includes(turn.id))
   return (
     <article className="space-y-3 border-t border-border py-5">
       <h3 className="font-semibold">{item.title}</h3>
+      {evidence.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted-foreground">The moment:</span>
+          {evidence.map((turn) => (
+            <Button
+              key={turn.id}
+              variant="secondary"
+              size="sm"
+              aria-label={`View moment at ${timestamp(turn.timeInCallSecs)}`}
+              onClick={() => setShowEvidence(true)}
+            >
+              {timestamp(turn.timeInCallSecs)} · {turn.speaker === 'user' ? 'You' : 'Buyer'}
+            </Button>
+          ))}
+        </div>
+      )}
       {item.quote && (
         <blockquote className="border-l-2 border-primary pl-4 text-muted-foreground">
           “{item.quote}”
@@ -24,16 +85,16 @@ function Improvement({ item, turns }: { item: ReportImprovement; turns: SavedTur
       {item.exampleResponse && (
         <blockquote className="rounded-xl bg-muted p-4">“{item.exampleResponse}”</blockquote>
       )}
-      <details>
+      <details open={showEvidence} onToggle={(event) => setShowEvidence(event.currentTarget.open)}>
         <summary className="cursor-pointer font-medium">View conversation evidence</summary>
-        {turns
-          .filter((turn) => item.turnIds.includes(turn.id))
-          .map((turn) => (
-            <p key={turn.id} className="mt-3">
-              <strong>{turn.speaker === 'user' ? 'You' : 'Buyer'}: </strong>
-              {turn.text}
-            </p>
-          ))}
+        {evidence.map((turn) => (
+          <p key={turn.id} className="mt-3">
+            <strong>
+              {timestamp(turn.timeInCallSecs)} · {turn.speaker === 'user' ? 'You' : 'Buyer'}:{' '}
+            </strong>
+            {turn.text}
+          </p>
+        ))}
       </details>
     </article>
   )
@@ -136,9 +197,7 @@ export function ReportView({ report, turns }: { report: CallReport; turns: Saved
         {turns.map((turn) => (
           <p className="mt-3" key={turn.id}>
             <strong>
-              {Math.floor(turn.timeInCallSecs / 60)}:
-              {String(Math.floor(turn.timeInCallSecs % 60)).padStart(2, '0')} ·{' '}
-              {turn.speaker === 'user' ? 'You' : 'Buyer'}:{' '}
+              {timestamp(turn.timeInCallSecs)} · {turn.speaker === 'user' ? 'You' : 'Buyer'}:{' '}
             </strong>
             {turn.text}
           </p>
@@ -195,6 +254,9 @@ export function SessionsPage() {
             {new Date(current.created_at).toLocaleString()} · {current.mode} · {current.status} ·{' '}
             {current.duration_seconds ?? 0}s
           </p>
+          {(current.status === 'COMPLETED' || current.status === 'FAILED') && (
+            <TimeMachineTest key={current.id} sessionId={current.id} turns={current.transcript} />
+          )}
           {current.report_status === 'READY' && current.report ? (
             <ReportView report={current.report} turns={current.transcript} />
           ) : current.status === 'CANCELLED' ? (
